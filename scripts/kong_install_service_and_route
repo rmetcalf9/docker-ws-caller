@@ -1,0 +1,63 @@
+#!/bin/sh
+
+#Example:
+#kong_install_service_and_route http://kong:8001 portainer http portainer 9000 https /portainer
+
+KONG_URL=${1}
+SERVICE_NAME=${2}
+SERVICE_PROTOCOL=${3}
+SERVICE_HOST=${4}
+SERVICE_PORT=${5}
+ROUTE_PROTOCOL=${6}
+ROUTE_PATHS=${7}
+
+echo "Installing service for ${2}"
+
+if [ "E${ROUTE_PATHS}" = "E" ]; then
+  echo "Invalid paramaters"
+  exit 1
+fi
+
+
+CREATE_SERVICE_OUTPUT=$(curl -sS --fail -X POST \
+                     --url ${KONG_URL}/services/ \
+                     --data "name=${SERVICE_NAME}" \
+                     --data "protocol=${SERVICE_PROTOCOL}" \
+                     --data "host=${SERVICE_HOST}" \
+                     --data "port=${SERVICE_PORT}")
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Create service failed - ${ret}"
+  echo "Output: ${CREATE_SERVICE_OUTPUT}"
+  echo ""
+  exit 1
+fi
+
+#echo "OUTPUT WAS"
+#echo "${CREATE_SERVICE_OUTPUT}"
+#echo "END"
+#
+SERVICE_ID=$(echo ${CREATE_SERVICE_OUTPUT} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Could not find the service id"
+  exit 1
+fi
+echo " - service id: ${SERVICE_ID}"
+
+CREATE_ROUTE_CMD="curl -sS --fail -X POST \
+--url ${KONG_URL}/routes/ \
+--data 'paths[]=${ROUTE_PATHS}' \
+--data 'service.id=${SERVICE_ID}' \
+--data 'protocols[]=${ROUTE_PROTOCOL}' \
+"
+
+eval ${CREATE_ROUTE_CMD}
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Create route failed - ${ret}"
+  echo "Cmd: ${CREATE_ROUTE_CMD}"
+  exit 1
+fi
+
+exit 0
