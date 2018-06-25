@@ -6,4 +6,4 @@ COPY ./scripts/kong_install_service_and_route /usr/bin
 
 RUN chmod +x /usr/bin/kong_install_service_and_route
 
-ENTRYPOINT ["/usr/bin/curl"]
+ENTRYPOINT ["/bin/sh"]
