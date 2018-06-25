@@ -26,10 +26,11 @@ CREATE_SERVICE_OUTPUT=$(curl -sS --fail -X POST \
                      --data "name=${SERVICE_NAME}" \
                      --data "protocol=${SERVICE_PROTOCOL}" \
                      --data "host=${SERVICE_HOST}" \
-                     --data "port=${SERVICE_PORT}")
+                     --data "port=${SERVICE_PORT}" 2>&1)
 ret=$?
 if [ $ret -ne 0 ]; then
-  if [ "E$(echo 'a')" = "E" ]; then
+  TMP=$(echo ${CREATE_SERVICE_OUTPUT} | grep 'curl: (22) The requested URL returned error: 409 Conflict' )
+  if [ "E${TMP}" = "E" ]; then
     echo "Create service failed - ${ret}"
     echo "Output: ${CREATE_SERVICE_OUTPUT}"
     echo ""
@@ -40,6 +41,8 @@ if [ $ret -ne 0 ]; then
   echo "to prevent docker from retrying this service"
   echo "not attempting to create any routes"
   echo "Output: ${CREATE_SERVICE_OUTPUT}"
+  echo ""
+  echo "end of ${0}"
   exit 0
 fi
 

@@ -1,0 +1,80 @@
+#Sample docker compose file for the dockjob image.
+# this shows how to run dockjob using kong to make it https and have basic-auth provided by kong
+# execute it with the command "docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-stack"
+#
+#note: it is recommended you change :latest to a specific version number
+
+#TODO Change to reading hostname as a docker secret
+
+version: "3.1"
+
+secrets:
+  webservices_cert:
+    external: true
+  webservices_key:
+    external: true
+
+services:
+  kong-database:
+    image: postgres:9.4
+    deploy:
+      restart_policy:
+        condition: any
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_DB=kong
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kong-migration:
+    image: kong:0.13
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+    command: kong migrations up
+
+  kong:
+    #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl
+    image: kong:0.13
+    deploy:
+      restart_policy:
+        condition: on-failure
+    secrets:
+     - webservices_cert
+     - webservices_key
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+      - KONG_PG_DATABASE=kong
+      - KONG_SSL_CERT=/run/secrets/webservices_cert
+      - KONG_SSL_CERT_KEY=/run/secrets/webservices_key
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+    ports:
+      # - 80:8000 Activate for debugging
+      - 443:8443
+      - 8000:8000
+      - 8001:8001
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
+      interval: 5s
+      retries: 10
+
+##The next section starts a UI for kong called konga. 
+##We only need a ui for development experimentation and can be removed if no UI is required
+## when it is running it can be accessed on port 1337
+  konga:
+    image: pantsel/konga
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+     - 1337:1337
+
+
+#docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-stack
