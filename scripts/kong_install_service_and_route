@@ -3,15 +3,16 @@
 #TODO add support for service_path paramater
 
 #Example:
-#kong_install_service_and_route http://kong:8001 portainer http portainer 9000 https /portainer
+#kong_install_service_and_route http://kong:8001 portainer http portainer 9000 "" https /portainer
 
 KONG_URL=${1}
 SERVICE_NAME=${2}
 SERVICE_PROTOCOL=${3}
 SERVICE_HOST=${4}
 SERVICE_PORT=${5}
-ROUTE_PROTOCOL=${6}
-ROUTE_PATHS=${7}
+SERVICE_PATH=${6}
+ROUTE_PROTOCOL=${7}
+ROUTE_PATHS=${8}
 
 echo "Installing service for ${2}"
 
@@ -26,7 +27,9 @@ CREATE_SERVICE_OUTPUT=$(curl -sS --fail -X POST \
                      --data "name=${SERVICE_NAME}" \
                      --data "protocol=${SERVICE_PROTOCOL}" \
                      --data "host=${SERVICE_HOST}" \
-                     --data "port=${SERVICE_PORT}" 2>&1)
+                     --data "port=${SERVICE_PORT}" \
+                     --data "path=${SERVICE_PATH}" \
+                      2>&1)
 ret=$?
 if [ $ret -ne 0 ]; then
   TMP=$(echo ${CREATE_SERVICE_OUTPUT} | grep 'curl: (22) The requested URL returned error: 409 Conflict' )
