@@ -60,4 +60,6 @@ if [ $ret -ne 0 ]; then
   exit 1
 fi
 
+echo "${0} completed sucessfully"
+
 exit 0
