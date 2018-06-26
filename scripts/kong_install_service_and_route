@@ -36,6 +36,13 @@ if [ ${RET} -ne 0 ]; then
     echo ""
     exit 1
   fi
+  TMP=$(echo ${SERVICE_JSON} | grep 'curl: (6) Could not resolve host:' )
+  if [ "E${TMP}" != "E" ]; then
+    echo "Detected Could not resolve host error"
+    echo "Kong isn't running - terminating ${0}"
+    echo ""
+    exit 1
+  fi
 fi
 
 if [ ${SERVICE_EXISTS_IN_KONG} -eq 0 ]; then
