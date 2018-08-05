@@ -35,10 +35,10 @@ RES=$?
 if [ ${RES} -eq 0 ]; then
   #The consumer exists
   if [ ${MODE} = "IGNORE" ]; then
-    echo "Consumer exists and more is IGNORE - exiting"
+    echo "Consumer exists and mode is IGNORE - exiting"
     exit 0
   fi
-  echo "Consumer exists and more is DELETE - deleting the consumer"
+  echo "Consumer exists and mode is DELETE - deleting the consumer"
   curl ${EXTRACURLOPTS} -sS --fail -X DELETE --url ${KONG_URL}/consumers/${CONSUMER_USERNAME}
   RES=$?
   if [ ${RES} -ne 0 ]; then
