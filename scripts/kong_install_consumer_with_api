@@ -1,0 +1,85 @@
+#!/bin/sh
+
+#This script will add a consumer to kong and add an API key for that consumer
+
+## Mode DELETE - If the consumer with the name exists it is deleted and recreated with a new key
+## Mode IGNORE - If the consumer with the name exists this process will exit
+
+#Example:
+#kong_install_service_and_route http://kong:8001 consumer_name
+
+if [ $# -ne 3 ]; then
+  echo "ERROR Wrong number of params"
+  exit 1
+fi
+
+KONG_URL=${1}
+MODE=${2}
+CONSUMER_USERNAME=${3}
+
+EXTRACURLOPTS="--insecure"
+
+echo "Start of ${0}"
+
+if [ ! ${MODE} = "DELETE" ]; then
+  if [ ! ${MODE} = "IGNORE" ]; then
+    echo "ERROR Error mode must be DELETE or IGNORE"
+    exit 1
+  fi
+fi
+
+CONSUMER_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/consumers/${CONSUMER_USERNAME} 2>&1)
+RES=$?
+if [ ${RES} -eq 0 ]; then
+  #The consumer exists
+  if [ ${MODE} = "IGNORE" ]; then
+    echo "Consumer exists and more is IGNORE - exiting"
+    exit 0
+  fi
+  echo "Consumer exists and more is DELETE - deleting the consumer"
+  curl ${EXTRACURLOPTS} -sS --fail -X DELETE --url ${KONG_URL}/consumers/${CONSUMER_USERNAME}
+  RES=$?
+  if [ ${RES} -ne 0 ]; then
+    echo " deletion of consumer failed"
+    exit 1
+  fi
+fi
+
+CONSUMER_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST --url ${KONG_URL}/consumers/  --data "username=${CONSUMER_USERNAME}")
+RES=$?
+if [ ${RES} -ne 0 ]; then
+  echo "ERROR curl failed could not create consumer"
+  exit 1
+fi
+
+
+CONSUMER_ID=$(echo ${CONSUMER_JSON} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Could not find the consumer id"
+  exit 1
+fi
+echo " - consumer id: ${CONSUMER_ID}"
+
+API_KEY_CREATE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST --url ${KONG_URL}/consumers/${CONSUMER_ID}/key-auth -d '')
+RES=$?
+if [ ${RES} -ne 0 ]; then
+  echo "ERROR curl failed to create consumer api key"
+  exit 1
+fi
+
+CONSUMER_API_KEY=$(echo ${API_KEY_CREATE_JSON} | python -c "import sys, json; print json.load(sys.stdin)['key']")
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Could not find the consumer api key"
+  echo "  ${CONSUMER_API_KEY}"
+  exit 1
+fi
+
+
+echo "The API key for ${CONSUMER_USERNAME} is ${CONSUMER_API_KEY}"
+
+
+echo "${0} completed sucessfully"
+
+exit 0
