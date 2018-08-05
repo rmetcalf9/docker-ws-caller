@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#TODO add support for service_path paramater
-
 #Example:
 #kong_install_service_and_route http://kong:8001 portainer http portainer 9000 "" https /portainer
 
@@ -18,10 +16,12 @@ ROUTE_METHODS=${10}
 ROUTE_STRIP_PATH=${11}
 ROUTE_PRESERVE_HOST=${12}
 
+NUMBER_EXPECTED_PARAMS=12
+
 echo "Installing service for ${2}"
 
-if [ $# -ne 9 ]; then
-  echo "Invalid paramaters expecting 12 but $# were supplied"
+if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then
+  echo "Invalid paramaters expecting ${NUMBER_EXPECTED_PARAMS} but $# were supplied"
   exit 1
 fi
 
