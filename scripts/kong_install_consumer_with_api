@@ -17,7 +17,9 @@ KONG_URL=${1}
 MODE=${2}
 CONSUMER_USERNAME=${3}
 
-EXTRACURLOPTS="--insecure"
+###This variable can be provided in development to get past curl cert errors
+###export EXTRACURLOPTS="--insecure"
+###EXTRACURLOPTS="--insecure"
 
 echo "Start of ${0}"
 
@@ -48,7 +50,9 @@ fi
 CONSUMER_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST --url ${KONG_URL}/consumers/  --data "username=${CONSUMER_USERNAME}")
 RES=$?
 if [ ${RES} -ne 0 ]; then
-  echo "ERROR curl failed could not create consumer"
+  echo "ERROR curl failed could not create consumer: ${RES}"
+  echo " request URL was: ${KONG_URL}/consumers/"
+  echo ${CONSUMER_JSON}
   exit 1
 fi
 

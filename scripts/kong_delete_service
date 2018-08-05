@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# Script which will delete a service and any associated routes
+
+if [ $# -ne 2 ]; then
+  echo "ERROR Wrong number of params"
+  exit 1
+fi
+
+KONG_URL=${1}
+SERVICE_NAME=${2}
+
+ROUTE_LIST_JSON=$(curl -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME}/routes 2>&1)
+RET=$?
+if [ ${RET} -eq 22 ]; then
+  echo "Service dosen't exist"
+  exit 0
+fi
+if [ ${RET} -ne 0 ]; then
+  echo "Query route failed - ${RET}"
+  echo "Output: ${ROUTE_LIST_JSON}"
+  exit 1
+fi
+
+NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
+
+echo "Service has ${NUMBER_OF_ROUTES} routes"
+
+for i in `seq 1 ${NUMBER_OF_ROUTES}`;
+do
+  THIS_ROUTE_ID=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print json.load(sys.stdin)['data'][${i}-1]['id']")
+  curl -i -X DELETE --url ${KONG_URL}/routes/${THIS_ROUTE_ID}
+  RES=$?
+  if [[ ${RES} -ne 0 ]]; then
+    echo "ERROR Failed to delete route"
+    exit 1
+  fi
+done
+
+curl -i -X DELETE --url ${KONG_URL}/services/${SERVICE_NAME}
+RES=$?
+if [[ ${RES} -ne 0 ]]; then
+  echo "ERROR Failed to delete service"
+  exit 1
+fi
+
+echo "${0} completed sucessfully"
+exit 0
