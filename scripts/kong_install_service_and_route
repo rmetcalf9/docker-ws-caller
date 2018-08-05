@@ -9,7 +9,7 @@ SERVICE_PROTOCOL=${3}
 SERVICE_HOST=${4}
 SERVICE_PORT=${5}
 SERVICE_PATH=${6}
-ROUTE_PROTOCOL=${7}
+ROUTE_PROTOCOLS=${7}
 ROUTE_HOSTS=${8}
 ROUTE_PATHS=${9}
 ROUTE_METHODS=${10}
@@ -18,6 +18,10 @@ ROUTE_PRESERVE_HOST=${12}
 
 NUMBER_EXPECTED_PARAMS=12
 
+###This variable can be provided in development to get past curl cert errors
+###export EXTRACURLOPTS="--insecure"
+###EXTRACURLOPTS="--insecure"
+
 echo "Installing service for ${2}"
 
 if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then
@@ -25,12 +29,33 @@ if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then
   exit 1
 fi
 
+if [ E${ROUTE_PRESERVE_HOST} != "Etrue" ]; then
+  if [ E${ROUTE_PRESERVE_HOST} != "Efalse" ]; then
+    if [ E${ROUTE_PRESERVE_HOST} = "Enull" ]; then
+      ROUTE_PRESERVE_HOST=false
+    else
+      echo "Invalid ROUTE_PRESERVE_HOST param (${ROUTE_PRESERVE_HOST})"
+      exit 1
+    fi
+  fi
+fi
+if [ E${ROUTE_STRIP_PATH} != "Etrue" ]; then
+  if [ E${ROUTE_STRIP_PATH} != "Efalse" ]; then
+    if [ E${ROUTE_STRIP_PATH} = "Enull" ]; then
+      ROUTE_STRIP_PATH=true
+    else
+      echo "Invalid ROUTE_STRIP_PATH param (${ROUTE_STRIP_PATH})"
+      exit 1
+    fi
+  fi
+fi
+
 if [ "E${ROUTE_PATHS}" = "E" ]; then
   echo "Invalid paramaters"
   exit 1
 fi
 
-SERVICE_JSON=$(curl -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME} 2>&1)
+SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME} 2>&1)
 RET=$?
 SERVICE_EXISTS_IN_KONG=1
 if [ ${RET} -ne 0 ]; then
@@ -55,7 +80,7 @@ if [ ${RET} -ne 0 ]; then
 fi
 
 if [ ${SERVICE_EXISTS_IN_KONG} -eq 0 ]; then
-  SERVICE_JSON=$(curl -sS --fail -X POST \
+  SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST \
                        --url ${KONG_URL}/services/ \
                        --data "name=${SERVICE_NAME}" \
                        --data "protocol=${SERVICE_PROTOCOL}" \
@@ -85,7 +110,7 @@ if [ $ret -ne 0 ]; then
 fi
 echo " - service id: ${SERVICE_ID}"
 
-ROUTE_LIST_JSON=$(curl -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME}/routes 2>&1)
+ROUTE_LIST_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME}/routes 2>&1)
 RET=$?
 if [ ${RET} -ne 0 ]; then
   echo "Query route failed - ${ret}"
@@ -102,18 +127,29 @@ if [ ${NUMBER_OF_ROUTES} -ne 0 ]; then
   exit 0
 fi
 
+
 ##See https://docs.konghq.com/0.14.x/admin-api/#add-route
-CREATE_ROUTE_CMD="curl -sS --fail -X POST \
+# protocols, hosts, paths and methods are all repeting criteris
+CREATE_ROUTE_CMD="curl ${EXTRACURLOPTS} -sS --fail -X POST \
 --url ${KONG_URL}/routes/ \
---data 'paths[]=${ROUTE_PATHS}' \
---data 'hosts[]=${ROUTE_HOSTS}' \
---data 'methods[]=${ROUTE_METHODS}' \
---data 'strip_path[]=${ROUTE_STRIP_PATH}' \
+--data 'strip_path=${ROUTE_STRIP_PATH}' \
 --data 'preserve_host=${ROUTE_PRESERVE_HOST}' \
 --data 'service.id=${SERVICE_ID}' \
---data 'protocols[]=${ROUTE_PROTOCOL}' \
 "
 
+append_comma_seperated_value()
+{
+  VAR_NAME=${1}
+  NEW_VAL=${2}
+  AA=$(echo ${NEW_VAL} | python -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print ' '.join(arr2)")
+  CREATE_ROUTE_CMD="${CREATE_ROUTE_CMD} ${AA}"
+  
+}
+
+append_comma_seperated_value protocols ${ROUTE_PROTOCOLS}
+append_comma_seperated_value paths ${ROUTE_PATHS}
+append_comma_seperated_value hosts ${ROUTE_HOSTS}
+append_comma_seperated_value methods ${ROUTE_METHODS}
 
 eval ${CREATE_ROUTE_CMD}
 ret=$?
