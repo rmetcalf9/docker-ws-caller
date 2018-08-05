@@ -144,7 +144,7 @@ append_comma_seperated_value()
   if [ E${NEW_VAL} != "Enull" ]; then
     AA=$(echo ${NEW_VAL} | python -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print ' '.join(arr2)")
     CREATE_ROUTE_CMD="${CREATE_ROUTE_CMD} ${AA}"
-  ]
+  fi
 }
 
 append_comma_seperated_value protocols ${ROUTE_PROTOCOLS}
