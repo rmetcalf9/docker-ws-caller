@@ -12,9 +12,18 @@ SERVICE_HOST=${4}
 SERVICE_PORT=${5}
 SERVICE_PATH=${6}
 ROUTE_PROTOCOL=${7}
-ROUTE_PATHS=${8}
+ROUTE_HOSTS=${8}
+ROUTE_PATHS=${9}
+ROUTE_METHODS=${10}
+ROUTE_STRIP_PATH=${11}
+ROUTE_PRESERVE_HOST=${12}
 
 echo "Installing service for ${2}"
+
+if [ $# -ne 9 ]; then
+  echo "Invalid paramaters expecting 12 but $# were supplied"
+  exit 1
+fi
 
 if [ "E${ROUTE_PATHS}" = "E" ]; then
   echo "Invalid paramaters"
@@ -93,12 +102,18 @@ if [ ${NUMBER_OF_ROUTES} -ne 0 ]; then
   exit 0
 fi
 
+##See https://docs.konghq.com/0.14.x/admin-api/#add-route
 CREATE_ROUTE_CMD="curl -sS --fail -X POST \
 --url ${KONG_URL}/routes/ \
 --data 'paths[]=${ROUTE_PATHS}' \
+--data 'hosts[]=${ROUTE_HOSTS}' \
+--data 'methods[]=${ROUTE_METHODS}' \
+--data 'strip_path[]=${ROUTE_STRIP_PATH}' \
+--data 'preserve_host=${ROUTE_PRESERVE_HOST}' \
 --data 'service.id=${SERVICE_ID}' \
 --data 'protocols[]=${ROUTE_PROTOCOL}' \
 "
+
 
 eval ${CREATE_ROUTE_CMD}
 ret=$?
