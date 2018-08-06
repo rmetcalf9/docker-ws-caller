@@ -44,5 +44,7 @@ if [[ ${RES} -ne 0 ]]; then
   exit 1
 fi
 
+echo "--------------------------"
 echo "${0} completed sucessfully"
+echo "--------------------------"
 exit 0

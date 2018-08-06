@@ -83,7 +83,8 @@ fi
 
 echo "The API key for ${CONSUMER_USERNAME} is ${CONSUMER_API_KEY}"
 
-
+echo "--------------------------"
 echo "${0} completed sucessfully"
+echo "--------------------------"
 
 exit 0

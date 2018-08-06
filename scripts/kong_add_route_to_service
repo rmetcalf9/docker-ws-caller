@@ -1,13 +1,9 @@
 #!/bin/sh
 
 ##Example:
-#./kong_install_service_and_route \
+#./kong_add_route_to_service \
 #http://127.0.0.1:8001 \
 #serv_name \
-#http \
-#www.host.com \
-#80 \
-#/ \
 #http \
 #route.host.com \
 #/ppp \
@@ -15,26 +11,25 @@
 #null \
 #null
 
+##There is no checking to see if route already exists. Mutiple of the same route may exist if this is run mutiple times
+
 KONG_URL=${1}
 SERVICE_NAME=${2}
-SERVICE_PROTOCOL=${3}
-SERVICE_HOST=${4}
-SERVICE_PORT=${5}
-SERVICE_PATH=${6}
-ROUTE_PROTOCOLS=${7}
-ROUTE_HOSTS=${8}
-ROUTE_PATHS=${9}
-ROUTE_METHODS=${10}
-ROUTE_STRIP_PATH=${11}
-ROUTE_PRESERVE_HOST=${12}
+ROUTE_PROTOCOLS=${3}
+ROUTE_HOSTS=${4}
+ROUTE_PATHS=${5}
+ROUTE_METHODS=${6}
+ROUTE_STRIP_PATH=${7}
+ROUTE_PRESERVE_HOST=${8}
 
-NUMBER_EXPECTED_PARAMS=12
+
+NUMBER_EXPECTED_PARAMS=8
 
 ###This variable can be provided in development to get past curl cert errors
 ###export EXTRACURLOPTS="--insecure"
 ###EXTRACURLOPTS="--insecure"
 
-echo "Installing service for ${2}"
+echo "Installing new route for service ${2}"
 
 if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then
   echo "Invalid paramaters expecting ${NUMBER_EXPECTED_PARAMS} but $# were supplied"
@@ -62,58 +57,16 @@ if [ E${ROUTE_STRIP_PATH} != "Etrue" ]; then
   fi
 fi
 
-if [ "E${ROUTE_PATHS}" = "E" ]; then
-  echo "Invalid paramaters"
-  exit 1
-fi
-
 SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME} 2>&1)
 RET=$?
 SERVICE_EXISTS_IN_KONG=1
 if [ ${RET} -ne 0 ]; then
   SERVICE_EXISTS_IN_KONG=0
-  echo "Service not found in kong"
+  echo "ERROR Service not found in kong"
   echo "Output: ${SERVICE_JSON}"
-  echo ""
-  TMP=$(echo ${SERVICE_JSON} | grep 'Connection refused' )
-  if [ "E${TMP}" != "E" ]; then
-    echo "Detected connection refused"
-    echo "Kong isn't running - terminating ${0}"
-    echo ""
-    exit 1
-  fi
-  TMP=$(echo ${SERVICE_JSON} | grep 'curl: (6) Could not resolve host:' )
-  if [ "E${TMP}" != "E" ]; then
-    echo "Detected Could not resolve host error"
-    echo "Kong isn't running - terminating ${0}"
-    echo ""
-    exit 1
-  fi
+  exit 1
 fi
 
-if [ ${SERVICE_EXISTS_IN_KONG} -eq 0 ]; then
-  SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST \
-                       --url ${KONG_URL}/services/ \
-                       --data "name=${SERVICE_NAME}" \
-                       --data "protocol=${SERVICE_PROTOCOL}" \
-                       --data "host=${SERVICE_HOST}" \
-                       --data "port=${SERVICE_PORT}" \
-                       --data "path=${SERVICE_PATH}" \
-                        2>&1)
-  ret=$?
-  if [ $ret -ne 0 ]; then
-    echo "Create service failed - ${ret}"
-    echo "Output: ${SERVICE_JSON}"
-    echo ""
-    exit 1
-  fi
-fi
-
-
-#echo "OUTPUT WAS"
-#echo "${CREATE_SERVICE_OUTPUT}"
-#echo "END"
-#
 SERVICE_ID=$(echo ${SERVICE_JSON} | python -c "import sys, json; print json.load(sys.stdin)['id']")
 ret=$?
 if [ $ret -ne 0 ]; then
@@ -133,16 +86,10 @@ fi
 NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
 echo " - Service has ${NUMBER_OF_ROUTES} routes"
 
-if [ ${NUMBER_OF_ROUTES} -ne 0 ]; then
-  echo "Terminating as service already has routes"
-  echo "End of ${0}"
-  exit 0
-fi
-
 
 ##See https://docs.konghq.com/0.14.x/admin-api/#add-route
 # protocols, hosts, paths and methods are all repeting criteris
-CREATE_ROUTE_CMD="curl ${EXTRACURLOPTS} -sS --fail -X POST \
+CREATE_ROUTE_CMD="echo -sS --fail -X POST \
 --url ${KONG_URL}/routes/ \
 --data 'strip_path=${ROUTE_STRIP_PATH}' \
 --data 'preserve_host=${ROUTE_PRESERVE_HOST}' \
@@ -164,15 +111,18 @@ append_comma_seperated_value paths ${ROUTE_PATHS}
 append_comma_seperated_value hosts ${ROUTE_HOSTS}
 append_comma_seperated_value methods ${ROUTE_METHODS}
 
-eval ${CREATE_ROUTE_CMD}
+CMD=$(${CREATE_ROUTE_CMD})
+CMD="curl ${EXTRACURLOPTS} ${CMD}"
+eval ${CMD}
 ret=$?
 if [ $ret -ne 0 ]; then
-  echo "Create route failed - ${ret}"
-  echo "Cmd: ${CREATE_ROUTE_CMD}"
+  echo "ERROR Create route failed - ${ret}"
   exit 1
 fi
 echo "Route POST returned ${RET}"
 
+echo "--------------------------"
 echo "${0} completed sucessfully"
+echo "--------------------------"
 
 exit 0
