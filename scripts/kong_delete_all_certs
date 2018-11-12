@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+
+import sys
+import requests
+
+print("Start of " + sys.argv[0])
+
+r = requests.get("http://kong_kong:8001/certificates/")
+
+if (r.status_code != 200) {
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit()
+}
+
+
+
+print("End of " + sys.argv[0])

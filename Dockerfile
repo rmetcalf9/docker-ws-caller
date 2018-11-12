@@ -12,11 +12,13 @@ COPY ./scripts/kong_install_service_and_route /usr/bin
 COPY ./scripts/kong_install_consumer_with_api /usr/bin
 COPY ./scripts/kong_delete_service /usr/bin
 COPY ./scripts/kong_add_route_to_service /usr/bin
+COPY ./scripts/kong_delete_all_certs /usr/bin
 
 
 RUN chmod +x /usr/bin/kong_install_service_and_route
 RUN chmod +x /usr/bin/kong_install_consumer_with_api
 RUN chmod +x /usr/bin/kong_delete_service
 RUN chmod +x /usr/bin/kong_add_route_to_service
+RUN chmod +x /usr/bin/kong_delete_all_certs
 
 ENTRYPOINT ["/bin/sh"]
