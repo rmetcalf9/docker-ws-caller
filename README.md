@@ -18,4 +18,21 @@ Kong admin is at
 See scripts for usage examples
 
 
+# Steps to release a new version
+
+```
+git tag -l
+git tag NEW_VER
+git add --all
+git commit -m"Releasing NEW_VER"
+git push
+```
+
+goto docker hub (https://hub.docker.com/r/metcarob/docker-ws-caller/~/settings/automated-builds/)
+Change latest tag to NEW_VER
+Press Trigger
+
+
+
+
 
