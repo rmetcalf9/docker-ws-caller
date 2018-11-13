@@ -34,6 +34,11 @@ Change latest tag to NEW_VER
 Press Trigger
 
 
+# Steps to test out the image
+
+docker run metcarob/docker-ws-caller:0.2.0 -c "ls /usr/bin | grep kong"
+docker run --mount type=bind,source=$(pwd)/examples,target=/examples metcarob/docker-ws-caller:0.2.0 -c "kong_update_cert_where_any_snis_match http://127.0.0.1:8001 hosta.com,t.ac.uk,asd.com /examples/certs/server.crt /examples/certs/server.key hosta.com,t.ac.uk,asd.com"
+
 
 
 
