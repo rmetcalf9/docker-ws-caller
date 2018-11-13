@@ -41,6 +41,12 @@ privkeyfile = sys.argv[4]
 newSnis = sys.argv[5]
 print(" updating where any cert matches any of " + certMatchList + " (kong url " + kongURL + ")")
 
+files = {
+    'cert': (certfile, open(certfile, 'rb')),
+    'key': (privkeyfile, open(privkeyfile, 'rb')),
+    'snis': (None, newSnis)
+}
+
 certfileContents = ""
 with open(certfile, 'r') as myfile:
     certfileContents=myfile.read()
@@ -69,14 +75,9 @@ jsonResp = json.loads(r.content.decode('utf-8'))
 for cert in jsonResp["data"]:
   for curCert in certMatchList:
     if curCert in cert["snis"]:
-      payload = {
-        'cert': certfileContents, 
-        'key': privkeyfileContents,
-        'snis': newSnis
-       }
       print("Update cert for " + str(curCert) + " (" + cert["id"] + ") - ", end="")
       sys.stdout.flush()
-      r = requests.patch(kongURL + "/certificates/" + cert["id"], data=payload)
+      r = requests.patch(kongURL + "/certificates/" + cert["id"], files=files)
       print(r.status_code)
       sys.stdout.flush()
       if (r.status_code != 200):
