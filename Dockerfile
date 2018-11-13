@@ -8,17 +8,14 @@ RUN apk add --no-cache curl python python3 && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     rm -r /root/.cache
 
-COPY ./scripts/kong_install_service_and_route /usr/bin
-COPY ./scripts/kong_install_consumer_with_api /usr/bin
-COPY ./scripts/kong_delete_service /usr/bin
-COPY ./scripts/kong_add_route_to_service /usr/bin
-COPY ./scripts/kong_delete_all_certs /usr/bin
+COPY ./scripts/* /usr/bin
 
 
-RUN chmod +x /usr/bin/kong_install_service_and_route
-RUN chmod +x /usr/bin/kong_install_consumer_with_api
-RUN chmod +x /usr/bin/kong_delete_service
-RUN chmod +x /usr/bin/kong_add_route_to_service
-RUN chmod +x /usr/bin/kong_delete_all_certs
+RUN chmod +x /usr/bin/kong_install_service_and_route && \
+    chmod +x /usr/bin/kong_install_consumer_with_api && \
+    chmod +x /usr/bin/kong_delete_service && \
+    chmod +x /usr/bin/kong_add_route_to_service && \
+    chmod +x /usr/bin/kong_delete_all_certs && \
+    chmod +x /usr/bin/kong_update_cert_where_any_snis_match
 
 ENTRYPOINT ["/bin/sh"]

@@ -3,8 +3,15 @@
 #./kong_delete_all_certs http://127.0.0.1:8001
 
 
-#Test to add a cert curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.com
- 
+#Test to add
+'''
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.com1
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co2m,t.ac.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co3m
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co4m,sads.co.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co5m,t.ac.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co6m
+'''
 
 
 import sys
@@ -12,6 +19,15 @@ import requests
 import json
 
 print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=1
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
 
 kongURL = sys.argv[1]
 print(" deleting all certs for kong url " + kongURL)

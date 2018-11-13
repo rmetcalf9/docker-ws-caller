@@ -1,0 +1,89 @@
+#!/usr/bin/python3
+
+#./kong_update_cert_where_any_snis_match http://127.0.0.1:8001 hosta.com,t.ac.uk,asd.com ../examples/certs/server.crt ../examples/certs/server.key hosta.com,t.ac.uk,asd.com
+
+#Test to add
+'''
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.com1
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co2m,t.ac.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co3m
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co4m,sads.co.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co5m,t.ac.uk
+curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.co6m
+'''
+
+#Examine
+'''
+curl -i -X GET --url http://127.0.0.1:8001/certificates/
+'''
+
+
+import sys
+import requests
+import json
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=5
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+
+kongURL = sys.argv[1]
+certMatchList = sys.argv[2]
+certfile = sys.argv[3]
+privkeyfile = sys.argv[4]
+newSnis = sys.argv[5]
+print(" updating where any cert matches any of " + certMatchList + " (kong url " + kongURL + ")")
+
+certfileContents = ""
+with open(certfile, 'r') as myfile:
+    certfileContents=myfile.read()
+privkeyfile = ""
+with open(certfile, 'r') as myfile:
+    privkeyfileContents=myfile.read()
+
+
+certMatchList = certMatchList.split(",")
+
+r = requests.get(kongURL + "/certificates/")
+
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
+
+jsonResp = json.loads(r.content.decode('utf-8'))
+
+#curl -i -X PUT --url http://kong_kong:8001/certificates/ -F cert=@/ext_volume/data_to_backup/letsencrypt/main/live/${HOSTNAME_FILE}/fullchain.pem -F key=@/ext_volume/data_to_backup/letsencrypt/main/live/${HOSTNAME_FILE}/privkey.pem -F snis=${SNILIST}
+
+
+
+for cert in jsonResp["data"]:
+  for curCert in certMatchList:
+    if curCert in cert["snis"]:
+      payload = {
+        'cert': certfileContents, 
+        'key': privkeyfileContents,
+        'snis': newSnis
+       }
+      print("Update cert for " + str(curCert) + " (" + cert["id"] + ") - ", end="")
+      sys.stdout.flush()
+      r = requests.patch(kongURL + "/certificates/" + cert["id"], data=payload)
+      print(r.status_code)
+      sys.stdout.flush()
+      if (r.status_code != 200):
+        print(r.headers)
+        print(r.content)
+        print("ERROR bad return")
+        exit(1)
+
+
+print("End of " + sys.argv[0])

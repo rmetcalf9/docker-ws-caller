@@ -1,0 +1,161 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 2 (0x2)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=GB, ST=UK, O=Robert Metcalf (metcarob), CN=METCAROB ROOT CA
+        Validity
+            Not Before: Nov 13 14:19:52 2018 GMT
+            Not After : Nov 13 14:19:52 2019 GMT
+        Subject: C=GB, ST=UK, O=Robert Metcalf (metcarob), CN=t.ac.uk
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:b0:45:02:ea:55:b0:5e:05:1c:3a:e2:0a:ab:03:
+                    5f:99:16:a7:d4:b8:40:90:72:f9:9e:be:86:0d:c5:
+                    3e:e3:38:9e:5a:48:7a:36:bb:c1:fe:0b:2c:ed:de:
+                    6a:a2:37:43:af:ba:c4:ed:b9:cb:9b:e2:55:c5:94:
+                    8d:ac:88:9f:24:98:00:e5:42:64:e3:af:bb:34:dc:
+                    ee:2c:6e:81:81:34:c5:95:b3:59:6f:75:cd:43:f1:
+                    3e:72:70:34:0b:f1:53:28:9a:ce:9b:03:ea:a2:ef:
+                    6d:e7:c2:f5:63:36:6c:c6:f5:02:2c:c6:d0:c3:fe:
+                    2d:e9:42:32:ee:70:11:d9:a6:b2:73:6d:e3:ea:66:
+                    3b:a8:91:07:14:91:d7:73:e0:40:ea:39:6c:51:b8:
+                    6e:df:6c:b2:c1:77:6e:f7:36:cc:ae:37:9a:4b:61:
+                    db:ac:86:93:b0:f7:03:60:04:ed:5d:64:5c:33:dc:
+                    79:e8:d7:fd:f5:fb:96:d3:46:9c:a4:2d:67:57:aa:
+                    e4:7b:e7:68:dc:d5:ef:24:ae:86:be:27:ef:02:5d:
+                    59:13:80:fe:a9:67:de:54:2b:0f:3f:69:ae:48:24:
+                    dc:21:69:84:5f:d3:23:d5:2a:e3:af:31:e6:f3:28:
+                    8a:20:b1:09:4a:af:64:53:f5:7d:9d:d3:8e:11:1d:
+                    97:b5
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                4D:AE:BA:C2:D2:05:4F:37:0D:66:AE:82:A1:8A:16:D1:7F:EE:EC:FB
+            X509v3 Authority Key Identifier: 
+                keyid:3B:0A:C5:29:C3:85:6D:41:57:59:1B:93:12:4F:08:9D:04:D9:89:79
+
+            X509v3 Basic Constraints: 
+                CA:TRUE
+            X509v3 Key Usage: 
+                Digital Signature, Non Repudiation, Key Encipherment
+            X509v3 Subject Alternative Name: 
+                DNS:t.ac.uk
+    Signature Algorithm: sha256WithRSAEncryption
+         5b:2c:72:f1:22:c5:dc:79:d4:e1:30:dd:89:67:43:b7:ce:77:
+         17:91:1a:ae:a6:d0:df:99:a4:69:df:9d:75:5a:7d:21:2a:fd:
+         3e:7c:08:4d:80:8e:18:15:80:d1:f5:b0:2e:9e:86:6b:ac:1b:
+         1d:5f:63:f1:6d:60:14:63:bb:74:a3:8e:b7:d9:56:3c:28:eb:
+         2e:7e:58:71:91:5b:e2:7d:bd:04:82:c1:b4:5b:8f:0d:35:6c:
+         7f:80:f9:3a:f8:54:15:1f:24:63:7d:4e:2c:8e:df:3b:28:23:
+         04:84:50:a5:b9:74:5d:13:6d:6e:df:41:60:a6:14:86:ff:7e:
+         cb:a9:e3:3c:7d:86:c8:60:e9:1d:f1:03:a7:7d:61:c7:bf:a8:
+         54:46:2a:17:1b:f9:05:ef:5c:14:97:df:d8:0a:33:b6:f2:66:
+         b7:bb:1e:0c:c6:fa:48:cd:bd:6f:62:53:d6:9e:cf:97:86:e4:
+         4c:3c:10:0b:e7:16:8c:b6:db:5b:22:09:12:0a:8d:ee:a1:23:
+         c9:e3:55:21:93:04:fa:f1:9c:9d:db:82:28:5d:d6:36:96:4c:
+         2a:96:4c:e3:dd:82:ad:0d:3d:42:c1:2b:39:3a:ee:4e:dd:95:
+         c9:8a:ce:b5:52:8e:74:11:9f:28:af:5d:c8:41:28:ff:d9:95:
+         4f:58:85:00
+-----BEGIN CERTIFICATE-----
+MIIDlTCCAn2gAwIBAgIBAjANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJHQjEL
+MAkGA1UECAwCVUsxIjAgBgNVBAoMGVJvYmVydCBNZXRjYWxmIChtZXRjYXJvYikx
+GTAXBgNVBAMMEE1FVENBUk9CIFJPT1QgQ0EwHhcNMTgxMTEzMTQxOTUyWhcNMTkx
+MTEzMTQxOTUyWjBQMQswCQYDVQQGEwJHQjELMAkGA1UECAwCVUsxIjAgBgNVBAoM
+GVJvYmVydCBNZXRjYWxmIChtZXRjYXJvYikxEDAOBgNVBAMMB3QuYWMudWswggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCwRQLqVbBeBRw64gqrA1+ZFqfU
+uECQcvmevoYNxT7jOJ5aSHo2u8H+Cyzt3mqiN0OvusTtucub4lXFlI2siJ8kmADl
+QmTjr7s03O4sboGBNMWVs1lvdc1D8T5ycDQL8VMoms6bA+qi723nwvVjNmzG9QIs
+xtDD/i3pQjLucBHZprJzbePqZjuokQcUkddz4EDqOWxRuG7fbLLBd273NsyuN5pL
+YdushpOw9wNgBO1dZFwz3Hno1/31+5bTRpykLWdXquR752jc1e8kroa+J+8CXVkT
+gP6pZ95UKw8/aa5IJNwhaYRf0yPVKuOvMebzKIogsQlKr2RT9X2d044RHZe1AgMB
+AAGjcTBvMB0GA1UdDgQWBBRNrrrC0gVPNw1mroKhihbRf+7s+zAfBgNVHSMEGDAW
+gBQ7CsUpw4VtQVdZG5MSTwidBNmJeTAMBgNVHRMEBTADAQH/MAsGA1UdDwQEAwIF
+4DASBgNVHREECzAJggd0LmFjLnVrMA0GCSqGSIb3DQEBCwUAA4IBAQBbLHLxIsXc
+edThMN2JZ0O3zncXkRquptDfmaRp3511Wn0hKv0+fAhNgI4YFYDR9bAunoZrrBsd
+X2PxbWAUY7t0o4632VY8KOsuflhxkVvifb0EgsG0W48NNWx/gPk6+FQVHyRjfU4s
+jt87KCMEhFCluXRdE21u30FgphSG/37LqeM8fYbIYOkd8QOnfWHHv6hURioXG/kF
+71wUl9/YCjO28ma3ux4MxvpIzb1vYlPWns+XhuRMPBAL5xaMtttbIgkSCo3uoSPJ
+41UhkwT68Zyd24IoXdY2lkwqlkzj3YKtDT1CwSs5Ou5O3ZXJis61Uo50EZ8or13I
+QSj/2ZVPWIUA
+-----END CERTIFICATE-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 1 (0x1)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=GB, ST=UK, O=Robert Metcalf (metcarob), CN=METCAROB ROOT CA
+        Validity
+            Not Before: Nov 13 14:19:30 2018 GMT
+            Not After : Jul 22 14:19:30 2032 GMT
+        Subject: C=GB, ST=UK, O=Robert Metcalf (metcarob), CN=METCAROB ROOT CA
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:bc:67:1f:3c:fa:a0:a2:a7:e4:82:33:0b:8c:ea:
+                    b5:f8:df:92:d0:b7:3e:94:98:85:e9:a3:0c:cb:93:
+                    4d:45:74:03:2e:1f:df:3a:79:8e:3d:54:e7:86:db:
+                    93:1f:a7:54:2b:0c:e0:19:f8:84:6c:f5:d7:75:9a:
+                    99:24:da:39:65:22:f9:f3:ad:54:22:eb:6e:fe:a8:
+                    28:4f:28:2c:ab:9e:1c:ac:48:a8:ab:ac:b6:84:ac:
+                    1f:10:1e:f1:75:33:5d:37:6e:0f:45:67:15:c0:4e:
+                    9c:60:ae:fd:18:0b:37:3c:41:56:8b:29:0f:9e:d1:
+                    3e:df:e9:58:a0:62:cd:73:57:5f:7c:37:5f:d0:fa:
+                    3c:a3:f2:37:62:a0:14:11:dd:e8:a7:2b:07:4d:d5:
+                    59:8c:e3:dc:65:e0:9e:23:51:90:2e:87:5f:49:0d:
+                    5c:e8:48:8c:ee:78:33:92:3f:5a:67:e4:b8:7f:e8:
+                    dc:6f:ca:d4:05:3d:33:40:29:33:7c:49:8d:1e:48:
+                    43:b8:60:7b:8c:92:d2:51:9d:38:0b:1e:1d:ef:cb:
+                    0c:a6:3e:b6:4e:a1:85:a2:d2:03:c5:ef:1e:0c:a3:
+                    06:ff:e1:54:b2:e0:80:68:b3:73:19:d9:3b:0c:86:
+                    a5:f5:1f:65:ca:9c:56:27:dd:ff:6f:07:cb:cc:dc:
+                    f4:1b
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                3B:0A:C5:29:C3:85:6D:41:57:59:1B:93:12:4F:08:9D:04:D9:89:79
+            X509v3 Authority Key Identifier: 
+                keyid:3B:0A:C5:29:C3:85:6D:41:57:59:1B:93:12:4F:08:9D:04:D9:89:79
+
+            X509v3 Basic Constraints: 
+                CA:TRUE
+    Signature Algorithm: sha256WithRSAEncryption
+         06:df:59:62:4c:75:4b:b1:09:72:ef:31:1c:43:f6:23:f3:39:
+         d5:b2:32:f9:ba:be:ff:21:24:31:ac:c4:2d:4e:ee:af:f8:a2:
+         9f:4a:7d:cf:a0:99:5b:19:4d:37:cf:01:40:c6:8e:81:37:32:
+         03:dd:8e:81:c5:b0:07:90:ac:dc:3f:cc:6f:9e:dc:e1:80:e3:
+         b6:95:3a:a5:26:f9:39:20:01:38:06:e6:90:3f:de:38:7b:1c:
+         21:d9:38:64:de:04:1f:87:2c:e5:28:c2:6f:e5:ba:70:1f:93:
+         a0:aa:57:d0:79:8c:b8:3c:b0:de:16:56:16:ea:c9:f7:d9:4e:
+         32:3f:47:4f:43:e7:32:82:6a:cf:ee:10:f9:d9:3a:91:66:de:
+         90:54:f2:ef:81:36:0a:2c:b2:f7:5a:b7:3b:df:e1:51:f8:28:
+         9c:6a:11:d3:04:d4:e1:3e:62:38:04:40:c5:04:8b:99:42:e6:
+         76:f1:e3:53:33:22:28:ef:c3:4b:e1:72:14:73:28:69:19:d6:
+         36:9d:f6:ce:7c:17:78:8f:9b:a2:1e:96:ff:66:cb:1b:11:1d:
+         5a:c3:1e:eb:71:92:b7:c0:de:0a:f3:5a:5e:7c:4c:ba:d3:7c:
+         da:ef:48:26:e8:7c:d0:8f:e8:83:87:59:e5:94:5a:31:30:7a:
+         85:c2:43:8e
+-----BEGIN CERTIFICATE-----
+MIIDfTCCAmWgAwIBAgIBATANBgkqhkiG9w0BAQsFADBZMQswCQYDVQQGEwJHQjEL
+MAkGA1UECAwCVUsxIjAgBgNVBAoMGVJvYmVydCBNZXRjYWxmIChtZXRjYXJvYikx
+GTAXBgNVBAMMEE1FVENBUk9CIFJPT1QgQ0EwHhcNMTgxMTEzMTQxOTMwWhcNMzIw
+NzIyMTQxOTMwWjBZMQswCQYDVQQGEwJHQjELMAkGA1UECAwCVUsxIjAgBgNVBAoM
+GVJvYmVydCBNZXRjYWxmIChtZXRjYXJvYikxGTAXBgNVBAMMEE1FVENBUk9CIFJP
+T1QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8Zx88+qCip+SC
+MwuM6rX435LQtz6UmIXpowzLk01FdAMuH986eY49VOeG25Mfp1QrDOAZ+IRs9dd1
+mpkk2jllIvnzrVQi627+qChPKCyrnhysSKirrLaErB8QHvF1M103bg9FZxXATpxg
+rv0YCzc8QVaLKQ+e0T7f6VigYs1zV198N1/Q+jyj8jdioBQR3einKwdN1VmM49xl
+4J4jUZAuh19JDVzoSIzueDOSP1pn5Lh/6NxvytQFPTNAKTN8SY0eSEO4YHuMktJR
+nTgLHh3vywymPrZOoYWi0gPF7x4Mowb/4VSy4IBos3MZ2TsMhqX1H2XKnFYn3f9v
+B8vM3PQbAgMBAAGjUDBOMB0GA1UdDgQWBBQ7CsUpw4VtQVdZG5MSTwidBNmJeTAf
+BgNVHSMEGDAWgBQ7CsUpw4VtQVdZG5MSTwidBNmJeTAMBgNVHRMEBTADAQH/MA0G
+CSqGSIb3DQEBCwUAA4IBAQAG31liTHVLsQly7zEcQ/Yj8znVsjL5ur7/ISQxrMQt
+Tu6v+KKfSn3PoJlbGU03zwFAxo6BNzID3Y6BxbAHkKzcP8xvntzhgOO2lTqlJvk5
+IAE4BuaQP944exwh2Thk3gQfhyzlKMJv5bpwH5OgqlfQeYy4PLDeFlYW6sn32U4y
+P0dPQ+cygmrP7hD52TqRZt6QVPLvgTYKLLL3Wrc73+FR+CicahHTBNThPmI4BEDF
+BIuZQuZ28eNTMyIo78NL4XIUcyhpGdY2nfbOfBd4j5uiHpb/ZssbER1awx7rcZK3
+wN4K81pefEy603za70gm6HzQj+iDh1nllFoxMHqFwkOO
+-----END CERTIFICATE-----
