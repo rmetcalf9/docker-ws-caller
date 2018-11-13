@@ -17,6 +17,7 @@ RUN chmod +x /usr/bin/kong_install_service_and_route && \
     chmod +x /usr/bin/kong_delete_service && \
     chmod +x /usr/bin/kong_add_route_to_service && \
     chmod +x /usr/bin/kong_delete_all_certs && \
-    chmod +x /usr/bin/kong_update_cert_where_any_snis_match
+    chmod +x /usr/bin/kong_update_cert_where_any_snis_match && \
+    chmod +x /usr/bin/kong_update_or_add_cert_where_any_snis_match
 
 ENTRYPOINT ["/bin/sh"]
