@@ -8,7 +8,7 @@ RUN apk add --no-cache curl python python3 && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     rm -r /root/.cache
 
-COPY ./scripts/* /usr/bin
+COPY ./scripts/* /usr/bin/
 
 
 RUN chmod +x /usr/bin/kong_install_service_and_route && \
