@@ -1,20 +1,41 @@
 #!/usr/bin/python3
 
+#./kong_delete_all_certs http://127.0.0.1:8001
+
+
+#Test to add a cert curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem -F key=./privkey.pem -F snis=testcert.com
+ 
+
+
 import sys
 import requests
+import json
 
 print("Start of " + sys.argv[0])
 
-r = requests.get("http://kong_kong:8001/certificates/")
+kongURL = sys.argv[1]
+print(" deleting all certs for kong url " + kongURL)
 
-if (r.status_code != 200) {
+
+r = requests.get(kongURL + "/certificates/")
+
+if (r.status_code != 200):
   print(r.status_code)
   print(r.headers)
   print(r.content)
   print("ERROR bad return")
-  exit()
-}
+  exit(1)
 
+jsonResp = json.loads(r.content.decode('utf-8'))
 
+for cert in jsonResp["data"]:
+  print("Deleting cert for " + str(cert["snis"]) + " (" + cert["id"] + ")")
+  r = requests.delete(kongURL + "/certificates/" + cert["id"])
+  if (r.status_code != 204):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR bad return")
+    exit(1)
 
 print("End of " + sys.argv[0])
