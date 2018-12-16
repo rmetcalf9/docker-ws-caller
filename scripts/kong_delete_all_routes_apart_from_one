@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+
+#./kong_delete_all_routes_apart_from_one http://127.0.0.1:8001 service_name route_id_to_ignore
+
+'''
+This is designed to test connections work
+'''
+
+
+import sys
+import requests
+import json
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=3
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+kongURL = sys.argv[1]
+serviceName = sys.argv[2]
+ResourseNotToDeleteID = sys.argv[3]
+
+
+print(" deleting all rsourses for " + serviceName + " unless ID is " + ResourseNotToDeleteID + " " + kongURL)
+
+
+r = requests.get(kongURL + "/services/" + serviceName + "/routes")
+
+if (r.status_code == 404):
+  print(r.headers)
+  print(r.content)
+  print('ERROR Service list route returned 404 not found')
+  print('Does the specified service exist?')
+  exit(1)
+  
+
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
+
+jsonResp = json.loads(r.content.decode('utf-8'))
+
+for route in jsonResp['data']:
+  if route['id'] == ResourseNotToDeleteID:
+    print('Skipping route: ' + route['id'] + ' (it will not be deleted)')
+  else:
+    deleteResponse = requests.delete(kongURL + "/routes/" + route['id'])
+    if (r.status_code != 200):
+      print(r.status_code)
+      print(r.headers)
+      print(r.content)
+      print("ERROR bad return from route deletions")
+      exit(1)
+    print("Route deleted sucessfully")
+
+print("End of " + sys.argv[0])

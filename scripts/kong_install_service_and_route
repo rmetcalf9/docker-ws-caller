@@ -29,6 +29,7 @@ ROUTE_STRIP_PATH=${11}
 ROUTE_PRESERVE_HOST=${12}
 
 NUMBER_EXPECTED_PARAMS=12
+NUMBER_EXPECTED_PARAMS_WITH_REPLACE_ROUTE=13
 
 ###This variable can be provided in development to get past curl cert errors
 ###export EXTRACURLOPTS="--insecure"
@@ -37,8 +38,20 @@ NUMBER_EXPECTED_PARAMS=12
 echo "Installing service for ${2}"
 
 if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then
-  echo "Invalid paramaters expecting ${NUMBER_EXPECTED_PARAMS} but $# were supplied"
-  exit 1
+  if [ $# -ne ${NUMBER_EXPECTED_PARAMS_WITH_REPLACE_ROUTE} ]; then
+    echo "Invalid paramaters expecting ${NUMBER_EXPECTED_PARAMS} but $# were supplied"
+    exit 1
+  fi
+fi
+
+REPLACE_ROUTES=false
+if [ $# -eq ${NUMBER_EXPECTED_PARAMS_WITH_REPLACE_ROUTE} ]; then
+  REPLACE_ROUTES=${13}
+  if [ E${REPLACE_ROUTES} != "Etrue" ]; then
+    echo "Replace route param present but it is not set to true"
+    echo " it's only possible value is true but ${REPLACE_ROUTES} was passed"
+    exit 1
+  fi
 fi
 
 if [ E${ROUTE_PRESERVE_HOST} != "Etrue" ]; then
@@ -133,10 +146,12 @@ fi
 NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
 echo " - Service has ${NUMBER_OF_ROUTES} routes"
 
-if [ ${NUMBER_OF_ROUTES} -ne 0 ]; then
-  echo "Terminating as service already has routes"
-  echo "End of ${0}"
-  exit 0
+if [ ${REPLACE_ROUTES} = "false" ]; then
+  if [ ${NUMBER_OF_ROUTES} -ne 0 ]; then
+    echo "Terminating as service already has routes"
+    echo "End of ${0}"
+    exit 0
+  fi
 fi
 
 
@@ -164,7 +179,7 @@ append_comma_seperated_value paths ${ROUTE_PATHS}
 append_comma_seperated_value hosts ${ROUTE_HOSTS}
 append_comma_seperated_value methods ${ROUTE_METHODS}
 
-eval ${CREATE_ROUTE_CMD}
+CREATE_ROUTE_RESULT=$(eval ${CREATE_ROUTE_CMD})
 ret=$?
 if [ $ret -ne 0 ]; then
   echo "Create route failed - ${ret}"
@@ -172,6 +187,20 @@ if [ $ret -ne 0 ]; then
   exit 1
 fi
 echo "Route POST returned ${RET}"
+
+##echo "CREATE_ROUTE_RESULT:${CREATE_ROUTE_RESULT}"
+CREATED_ROUTE_ID=$(echo ${CREATE_ROUTE_RESULT} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+##echo "CREATED_ROUTE_ID:${CREATED_ROUTE_ID}"
+
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+${DIR}/kong_delete_all_routes_apart_from_one ${KONG_URL} ${SERVICE_NAME} ${CREATED_ROUTE_ID}
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "delete all routes failed"
+  exit 1
+fi
+
 
 echo "${0} completed sucessfully"
 

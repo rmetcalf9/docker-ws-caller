@@ -74,7 +74,7 @@ services:
       restart_policy:
         condition: on-failure
     ports:
-     - 1337:1337
+     - 1339:1337
 
 
 #docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-stack

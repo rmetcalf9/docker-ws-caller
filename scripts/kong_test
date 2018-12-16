@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+
+#./kong_test http://127.0.0.1:8001
+
+'''
+This is designed to test connections work
+'''
+
+
+import sys
+import requests
+import json
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=1
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+kongURL = sys.argv[1]
+print(" testing " + kongURL)
+
+
+r = requests.get(kongURL + "/")
+
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
+
+jsonResp = json.loads(r.content.decode('utf-8'))
+
+if 'version' not in jsonResp:
+    print('ERROR Response does not contain version')
+    print(jsonResp)
+    print('ERROR Response does not contain version')
+    exit(1)
+
+print('Kong version' + jsonResp['version'])
+
+print("End of " + sys.argv[0])
