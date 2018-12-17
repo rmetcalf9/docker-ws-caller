@@ -28,6 +28,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+    - tmp-kong-stack
 
   kong-migration:
     image: kong:0.13
@@ -38,6 +40,8 @@ services:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
     command: kong migrations up
+    networks:
+    - tmp-kong-stack
 
   kong:
     #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl
@@ -64,6 +68,8 @@ services:
       test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
       interval: 5s
       retries: 10
+    networks:
+    - tmp-kong-stack
 
 ##The next section starts a UI for kong called konga. 
 ##We only need a ui for development experimentation and can be removed if no UI is required
@@ -75,6 +81,13 @@ services:
         condition: on-failure
     ports:
      - 1339:1337
+    networks:
+    - tmp-kong-stack
 
+networks:
+  tmp-kong-stack:
+    external: true
 
+     
+#docker network create --driver=overlay --attachable tmp-kong-stack --opt encrypted
 #docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-stack
