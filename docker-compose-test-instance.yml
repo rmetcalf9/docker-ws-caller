@@ -91,3 +91,6 @@ networks:
      
 #docker network create --driver=overlay --attachable tmp-kong-stack --opt encrypted
 #docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-stack
+
+#TEST
+# docker run --rm -it --network tmp-kong-stack --entrypoint kong_install_service_and_route metcarob/docker-ws-caller:0.3.1 http://kong:8001 virtualpresencepicture_TEST http virtualpresencepicture_aa 8098 / http api.metcarob.com /virtualpresencepicture/test/v0 GET null null true
