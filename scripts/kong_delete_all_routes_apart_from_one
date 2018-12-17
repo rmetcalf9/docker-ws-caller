@@ -60,6 +60,6 @@ for route in jsonResp['data']:
       print(r.content)
       print("ERROR bad return from route deletions")
       exit(1)
-    print("Route deleted sucessfully")
+    print("Route deleted sucessfully (" + route['id'] + ")")
 
 print("End of " + sys.argv[0])

@@ -192,8 +192,8 @@ echo "Route POST returned ${RET}"
 CREATED_ROUTE_ID=$(echo ${CREATE_ROUTE_RESULT} | python -c "import sys, json; print json.load(sys.stdin)['id']")
 ##echo "CREATED_ROUTE_ID:${CREATED_ROUTE_ID}"
 
-
-$( dirname $0 )/kong_delete_all_routes_apart_from_one ${KONG_URL} ${SERVICE_NAME} ${CREATED_ROUTE_ID}
+DIR=$(dirname ${0})
+${DIR}/kong_delete_all_routes_apart_from_one ${KONG_URL} ${SERVICE_NAME} ${CREATED_ROUTE_ID}
 ret=$?
 if [ $ret -ne 0 ]; then
   echo "delete all routes failed"
