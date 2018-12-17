@@ -120,6 +120,22 @@ if [ ${SERVICE_EXISTS_IN_KONG} -eq 0 ]; then
     echo ""
     exit 1
   fi
+else
+  echo "Service already exists in Kong - updating it"
+  PATCH_SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X PATCH \
+                       --url ${KONG_URL}/services/${SERVICE_NAME} \
+                       --data "protocol=${SERVICE_PROTOCOL}" \
+                       --data "host=${SERVICE_HOST}" \
+                       --data "port=${SERVICE_PORT}" \
+                       --data "path=${SERVICE_PATH}" \
+                        2>&1)
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echo "Update service failed - ${ret}"
+    echo "Output: ${PATCH_SERVICE_JSON}"
+    echo ""
+    exit 1
+  fi
 fi
 
 
