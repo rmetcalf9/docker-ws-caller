@@ -85,7 +85,7 @@ if (r.status_code != 201):
 jsonRespTargetAdded = json.loads(r.content.decode('utf-8'))
 
 targetAddedID=jsonRespTargetAdded['id']
-print(jsonRespTargetAdded)
+##print(jsonRespTargetAdded)
 print("Target ID:" + targetAddedID)
 
 if removeOtherTargets:
@@ -101,12 +101,23 @@ if removeOtherTargets:
     
   jsonRespListOfTargets = json.loads(r.content.decode('utf-8'))
 
-  
+  num_removed = 0
   for curTarget in jsonRespListOfTargets['data']:
-    print("curTime Target:" + curTarget)
-    if curUpstream['id'] == targetAddedID:
+    if curTarget['id'] == targetAddedID:
       print('Not removing - current target')
     else:
-      print(curTarget)
+      url = kongURL + "/upstreams/" + serviceName + "/targets/" + curTarget['id']
+      r = requests.delete(url)
+      if (r.status_code != 204):
+        print("Error calling " + url)
+        print(r.status_code)
+        print(r.headers)
+        print(r.content)
+        print("ERROR failed to remove tartert for upstrem")
+        exit(1)
+      print("Removed target " + curTarget['target'] + " id " + curTarget['id'])
+      num_removed += 1
+      
+  print("Number of targets removed: " + str(num_removed))
 
 print("End of " + sys.argv[0])
