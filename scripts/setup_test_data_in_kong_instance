@@ -11,16 +11,20 @@ import json
 
 print("Start of " + sys.argv[0])
 
+kongURL = ""
+
 expectedNumOfArgs=1
 if len(sys.argv) != (expectedNumOfArgs + 1):
+  print("No arguments supplied, defaulting to typical Kong endpoint")
+  kongURL = "http://127.0.0.1:8001"
   #need to subtract one as 0 argument is the file name
-  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
-  print("Recieved args:")
-  print(sys.argv)
-  print("-")
-  exit(1)
-
-kongURL = sys.argv[1]
+  #print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  #print("Recieved args:")
+  #print(sys.argv)
+  #print("-")
+  #exit(1)
+else:
+  kongURL = sys.argv[1]
 
 print('Setting up test services in ' + kongURL)
 
