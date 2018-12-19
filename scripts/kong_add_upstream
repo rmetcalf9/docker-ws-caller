@@ -1,0 +1,112 @@
+#!/usr/bin/python3
+
+#./kong_add_upstream http://127.0.0.1:8001 service_name target_name:8098 remove_other_targets
+
+'''
+This is designed to add an upstream and target
+ - Option remove_existing_targets = if set it will remove all other targets
+'''
+
+
+import sys
+import requests
+import json
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=4
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+kongURL = sys.argv[1]
+serviceName = sys.argv[2]
+targetName = sys.argv[3]
+removeOtherTargets = False
+if sys.argv[4] == "null":
+  print("Not removing other targets")
+elif sys.argv[4] == "remove_other_targets":
+  print("Will remove other targets")
+  removeOtherTargets = True
+else:
+  print("ERROR Param 4 can only be null or remove_other_targets")
+  exit(1)
+
+print(" Add (or update) upstream " + serviceName + " with target " + targetName + " " + kongURL)
+
+
+r = requests.get(kongURL + "/upstreams/")
+
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
+
+jsonRespUpstreamList = json.loads(r.content.decode('utf-8'))
+
+upstream_already_exists = False
+
+for curUpstream in jsonRespUpstreamList['data']:
+  if curUpstream['name'] == serviceName:
+    upstream_already_exists = True
+
+if not upstream_already_exists:
+  print('Upstream dosen\'t already exist - Creating')
+  post_data = {
+    'name': serviceName,
+  }
+  r = requests.post(kongURL + "/upstreams/", files=post_data)
+  if (r.status_code != 201):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR bad return")
+    exit(1)
+
+print('Adding target to upstream')
+post_data = {
+  'target': targetName,
+  'weight': '100'
+}
+r = requests.post(kongURL + "/upstreams/" + serviceName + "/targets", files=post_data)
+if (r.status_code != 201):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
+
+jsonRespTargetAdded = json.loads(r.content.decode('utf-8'))
+
+targetAddedID=jsonRespTargetAdded['id']
+print(jsonRespTargetAdded)
+print("Target ID:" + targetAddedID)
+
+if removeOtherTargets:
+  print('Now removing all other targets')
+  
+  r = requests.get(kongURL + "/upstreams/" + serviceName + "/targets")
+  if (r.status_code != 200):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR could not list targets for service")
+    exit(1)
+    
+  jsonRespListOfTargets = json.loads(r.content.decode('utf-8'))
+
+  
+  for curTarget in jsonRespListOfTargets['data']:
+    print("curTime Target:" + curTarget)
+    if curUpstream['id'] == targetAddedID:
+      print('Not removing - current target')
+    else:
+      print(curTarget)
+
+print("End of " + sys.argv[0])

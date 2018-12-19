@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+
+import subprocess
+import sys
+import requests
+import json
+
+##Example:
+#./kong_install_service_and_route \
+#http://127.0.0.1:8001
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=1
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+kongURL = sys.argv[1]
+
+print('Setting up test services in ' + kongURL)
+
+params_for_kong_install_service_and_route = [
+kongURL,
+'test_serv_001',
+'http',
+'www.host_test001.com',
+'80',
+'/',
+'http',
+'api.server.com',
+'/test001',
+'null',
+'null',
+'null'
+]
+
+a = ["./kong_install_service_and_route"]
+a.extend(params_for_kong_install_service_and_route)
+
+for curServ in range(1,10):
+  a[2] = ("test_serv_{:03d}".format(curServ))
+  a[4] = ("www.host_test{:03d}.com".format(curServ))
+  a[9] = ("/test{:03d}".format(curServ))
+  res = subprocess.run(a)
+  if res.returncode != 0:
+    raise Exception('Failed to create a service')
+
+print('TODO Adding some upstreams')
+
+    
+    
+print("End of " + sys.argv[0])
