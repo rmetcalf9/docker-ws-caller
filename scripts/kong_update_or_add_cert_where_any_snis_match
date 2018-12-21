@@ -55,7 +55,7 @@ with open(certfile, 'r') as myfile:
     privkeyfileContents=myfile.read()
 
 
-certMatchList = certMatchList.split(",")
+certMatchListSPLIT = certMatchList.split(",")
 
 r = requests.get(kongURL + "/certificates/")
 
@@ -73,7 +73,7 @@ jsonResp = json.loads(r.content.decode('utf-8'))
 foundAndUpdated = False
 
 for cert in jsonResp["data"]:
-  for curCert in certMatchList:
+  for curCert in certMatchListSPLIT:
     if curCert in cert["snis"]:
       print("Update cert for " + str(curCert) + " (" + cert["id"] + ") - ", end="")
       sys.stdout.flush()
@@ -88,7 +88,7 @@ for cert in jsonResp["data"]:
         exit(1)
 
 if not foundAndUpdated:
-  print("Create cert for " + str(curCert) + " (" + cert["id"] + ") - ", end="")
+  print("Create cert for " + certMatchList + " (" + cert["id"] + ") - ", end="")
   sys.stdout.flush()
   r = requests.post(kongURL + "/certificates/", files=files) #without ID only works if SNI dosen't already exist
   print(r.status_code)
