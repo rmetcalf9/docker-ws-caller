@@ -88,7 +88,7 @@ for cert in jsonResp["data"]:
         exit(1)
 
 if not foundAndUpdated:
-  print("Create cert for " + certMatchList + " (" + cert["id"] + ") - ", end="")
+  print("Create cert for " + certMatchList + " - ", end="")
   sys.stdout.flush()
   r = requests.post(kongURL + "/certificates/", files=files) #without ID only works if SNI dosen't already exist
   print(r.status_code)
