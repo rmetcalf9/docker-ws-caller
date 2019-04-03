@@ -29,6 +29,7 @@ git push
 git push --tags
 ```
 
+(Not needed I got docker hub auto build working)
 goto docker hub (https://hub.docker.com/r/metcarob/docker-ws-caller/~/settings/automated-builds/)
 Change latest tag to NEW_VER
 Press Trigger

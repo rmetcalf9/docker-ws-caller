@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-RUN apk add --no-cache curl python python3 && \
+RUN apk add --no-cache curl python python3 gcc python3-dev linux-headers build-base libffi-dev && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --upgrade pip setuptools && \
@@ -32,3 +32,7 @@ RUN chmod +x /usr/bin/kong_install_service_and_route && \
 
 
 ENTRYPOINT ["/bin/sh"]
+
+
+## docker run --rm --name docker_ws_caller --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:latest -c "echo abc"
+## docker run --rm --name docker_ws_caller -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:latest 
