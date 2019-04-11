@@ -34,6 +34,7 @@ serv_name \
 "some_cookie" \
 "aclWhite1 aclWhite2" \
 ""
+"kong_iss"
 
 
 ./kong_add_jwt_and_acl_plugins \
@@ -42,7 +43,7 @@ serv_name \
 "some_cookie" \
 "" \
 "aclBlack1 aclBlack2"
-
+"kong_iss"
 
 '''
 
@@ -54,7 +55,7 @@ import json
 
 print("Start of " + sys.argv[0])
 
-expectedNumOfArgs=5
+expectedNumOfArgs=6
 if len(sys.argv) != (expectedNumOfArgs + 1):
   #need to subtract one as 0 argument is the file name
   print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
@@ -68,6 +69,7 @@ SERVICE_NAME = sys.argv[2]
 JWT_COOKIE_NAME = sys.argv[3]
 AUTHED_ACL_WHITELIST = sys.argv[4]
 AUTHED_ACL_BLACKLIST = sys.argv[5]
+key_claim_name = sys.argv[6]
 
 print("Recieved Args:")
 print("              kongURL:" + kongURL + ":")
@@ -75,6 +77,7 @@ print("         SERVICE_NAME:" + SERVICE_NAME + ":")
 print("      JWT_COOKIE_NAME:" + JWT_COOKIE_NAME + ":")
 print(" AUTHED_ACL_WHITELIST:" + AUTHED_ACL_WHITELIST + ":")
 print(" AUTHED_ACL_BLACKLIST:" + AUTHED_ACL_BLACKLIST + ":")
+print("       key_claim_name:" + key_claim_name + ":")
 
 AUTHED_ACL_WHITELIST_ll = " ".join(AUTHED_ACL_WHITELIST.split()).split(" ")
 AUTHED_ACL_BLACKLIST_ll = " ".join(AUTHED_ACL_BLACKLIST.split()).split(" ")
@@ -147,6 +150,7 @@ else:
     'config.secret_is_base64': 'true', 
     'config.claims_to_verify': 'exp',
     'config.cookie_names': 'jwt-auth-cookie',
+    'config.key_claim_name': key_claim_name
   }
   r = makePostJSONRequest("/services/" + SERVICE_NAME + "/plugins/", data , [201], "ERROR failed to add JWT Plugin")
 
