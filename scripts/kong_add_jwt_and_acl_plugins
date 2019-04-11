@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+
+#./kong_test http://127.0.0.1:8001
+
+'''
+This is designed to test connections work
+'''
+
+
+import sys
+import requests
+import json
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=5
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
+
+kongURL = sys.argv[1]
+SERVICE_NAME = sys.argv[2]
+JWT_COOKIE_NAME = sys.argv[3]
+AUTHED_ACL_WHITELIST = sys.argv[4]
+AUTHED_ACL_BLACKLIST = sys.argv[5]
+
+print("Recieved Args:")
+print("              kongURL:" + kongURL + ":")
+print("         SERVICE_NAME:" + SERVICE_NAME + ":")
+print("      JWT_COOKIE_NAME:" + JWT_COOKIE_NAME + ":")
+print(" AUTHED_ACL_WHITELIST:" + AUTHED_ACL_WHITELIST + ":")
+print(" AUTHED_ACL_BLACKLIST:" + AUTHED_ACL_BLACKLIST + ":")
+
+print("Not yet implemented - doing nothing")
+
+#r = requests.get(kongURL + "/")
+
+#if (r.status_code != 200):
+#  print(r.status_code)
+#  print(r.headers)
+#  print(r.content)
+#  print("ERROR bad return")
+#  exit(1)
+
+#jsonResp = json.loads(r.content.decode('utf-8'))
+
+#if 'version' not in jsonResp:
+#    print('ERROR Response does not contain version')
+#    print(jsonResp)
+#    print('ERROR Response does not contain version')
+#    exit(1)
+
+#print('Kong version' + jsonResp['version'])
+
+print("End of " + sys.argv[0])
