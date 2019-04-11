@@ -11,6 +11,7 @@ docker stack deploy --compose-file=docker-compose-test-instance.yml tmp-kong-sta
 
 Konga will be at
 127.0.0.1:1337
+(I changed to 1339 for some reason)
 
 Kong admin is at
 127.0.0.1:8001

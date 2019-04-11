@@ -140,13 +140,14 @@ fi
 
 
 #echo "OUTPUT WAS"
-#echo "${CREATE_SERVICE_OUTPUT}"
+#echo "${SERVICE_JSON}"
 #echo "END"
 #
-SERVICE_ID=$(echo ${SERVICE_JSON} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+SERVICE_ID=$(echo ${SERVICE_JSON} | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
 ret=$?
 if [ $ret -ne 0 ]; then
   echo "Could not find the service id"
+  echo " from service JSON: ${SERVICE_JSON}"
   exit 1
 fi
 echo " - service id: ${SERVICE_ID}"
@@ -159,7 +160,7 @@ if [ ${RET} -ne 0 ]; then
   exit 1
 fi
 
-NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
+NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python3 -c "import sys, json; print(len(json.load(sys.stdin)['data']))")
 echo " - Service has ${NUMBER_OF_ROUTES} routes"
 
 if [ ${REPLACE_ROUTES} = "false" ]; then
@@ -185,7 +186,7 @@ append_comma_seperated_value()
   VAR_NAME=${1}
   NEW_VAL=${2}
   if [ E${NEW_VAL} != "Enull" ]; then
-    AA=$(echo ${NEW_VAL} | python -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print ' '.join(arr2)")
+    AA=$(echo ${NEW_VAL} | python3 -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print(' '.join(arr2))")
     CREATE_ROUTE_CMD="${CREATE_ROUTE_CMD} ${AA}"
   fi
 }
@@ -205,14 +206,23 @@ fi
 echo "Route POST returned ${RET}"
 
 ##echo "CREATE_ROUTE_RESULT:${CREATE_ROUTE_RESULT}"
-CREATED_ROUTE_ID=$(echo ${CREATE_ROUTE_RESULT} | python -c "import sys, json; print json.load(sys.stdin)['id']")
-##echo "CREATED_ROUTE_ID:${CREATED_ROUTE_ID}"
+CREATED_ROUTE_ID=$(echo ${CREATE_ROUTE_RESULT} | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
+ret=$?
+if [ $ret -ne 0 ]; then
+  echo "Failed to get created route ID"
+  exit 1
+fi
+if [ E${CREATED_ROUTE_ID} == "E" ]; then
+  echo "Route ID is Blank - should have generated it from create route result: ${CREATE_ROUTE_RESULT}"
+  exit 1
+fi
+echo "CREATED_ROUTE_ID:${CREATED_ROUTE_ID}"
 
 DIR=$(dirname ${0})
 ${DIR}/kong_delete_all_routes_apart_from_one ${KONG_URL} ${SERVICE_NAME} ${CREATED_ROUTE_ID}
 ret=$?
 if [ $ret -ne 0 ]; then
-  echo "delete all routes failed"
+  echo "delete all routes apart from one failed"
   exit 1
 fi
 

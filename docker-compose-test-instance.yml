@@ -75,7 +75,7 @@ services:
 ##We only need a ui for development experimentation and can be removed if no UI is required
 ## when it is running it can be accessed on port 1337
   konga:
-    image: pantsel/konga
+    image: pantsel/konga:0.11.2
     deploy:
       restart_policy:
         condition: on-failure
