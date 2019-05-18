@@ -22,6 +22,7 @@ See scripts for usage examples
 # Steps to release a new version
 
 ```
+run continous test and make sure all tests pass - you need a local kong server running
 git tag -l
 git tag NEW_VER
 git add --all
