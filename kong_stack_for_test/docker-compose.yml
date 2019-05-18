@@ -1,0 +1,62 @@
+# generate a kong server to run tests against
+
+version: "3.1"
+
+services:
+  dbb:
+    image: postgres:9.6
+    deploy:
+      restart_policy:
+        condition: any
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_DB=kong
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+   # volumes:
+   # - ../../data_db/kong/db:/var/lib/postgresql/data
+
+  #Setup kong database
+  kong-migration:
+    image: kong:0.13
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=dbb
+    command: kong migrations up
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  kong:
+    #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl
+    image: kong:0.13
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=dbb
+      - KONG_PG_DATABASE=kong
+      - KONG_PROXY_LISTEN=0.0.0.0:80, 0.0.0.0:443 ssl
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+    ports:
+     - "8380:80"
+     - "8443:443"
+     - "8381:8001"
+#     - 80:8000
+#     - 443:8443
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:80 || exit 1"]
+      interval: 5s
+      retries: 10
+
+
+##docker stack deploy --compose-file=docker-compose.yml kongforautotest
+
