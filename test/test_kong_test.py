@@ -11,7 +11,7 @@ class test_kong_test(testHelperSuperClass):
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_test"
     
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1, False)
 
   def test_badKongServer(self):
 
@@ -19,14 +19,14 @@ class test_kong_test(testHelperSuperClass):
     expectedOutput = None
     expectedErrorOutput = None
     
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [-1], 0.5)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [-1], 0.5, False)
 
   def test_WorkingKongServer(self):
 
-    cmdToExecute = "./scripts/kong_test http://127.0.0.1:8381"
-    expectedOutput = "Start of ./scripts/kong_test\n testing http://127.0.0.1:8381\nKong version0.13.1\nEnd of ./scripts/kong_test\n"
+    cmdToExecute = "./scripts/kong_test " + self.kong_server
+    expectedOutput = "Start of ./scripts/kong_test\n testing " + self.kong_server + "\nKong version0.13.1\nEnd of ./scripts/kong_test\n"
     expectedErrorOutput = None
     
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 2)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 2, False)
 
 
