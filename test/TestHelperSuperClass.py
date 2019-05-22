@@ -74,7 +74,7 @@ class testHelperSuperClass(unittest.TestCase):
   #api must start with a /
   def callKongService(self, api, headers, method, dataDICT, expectedResponses):
     #print("Calling " + self.kong_server + api + " (" + method + ")")
-    resp, respCode = testUtils.callService(self, self.kong_server + api, headers, method, dataDICT, expectedResponses)
+    resp, respCode = testUtils.callService(self, self.kong_server + api, headers, method, dataDICT, 1, expectedResponses)
     try:
       return json.loads(resp), respCode
     except:
@@ -82,3 +82,22 @@ class testHelperSuperClass(unittest.TestCase):
       print(resp)
       print("-----------")
       self.assertTrue(False)
+
+  def callKongServiceWithFiles(self, api, headers, method, files, expectedResponses):
+    resp, respCode = testUtils.callServiceSendMultiPartFiles(self, self.kong_server + api, headers, method, 1, expectedResponses, files)
+    try:
+      return json.loads(resp), respCode
+    except:
+      print("Got non JSON response:")
+      print(resp)
+      print("-----------")
+      self.assertTrue(False)
+
+  def deleteAllCerts(self):
+    #used before tests that rely on certs data
+    cmdToExecute = "./scripts/kong_delete_all_certs " + self.kong_server
+    expectedOutput = ""
+
+    expectedErrorOutput = None
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
+

@@ -10,9 +10,9 @@ class local_helpers(testHelperSuperClass):
       'key': (privkeyfile, open(privkeyfile, 'rb')),
       'snis': (None, snis)
     }
-    self.assertTrue(False, msg="ERROR Need to be able to send files param")
-    #TODO Need to be able to send files param
-    #r = requests.post(kongURL + "/certificates/", files=files) #without ID only works if SNI dosen't already exist
+    headers = {}
+    resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201])
+    return resp["id"]
 
 
 class test_kong_test(local_helpers):
@@ -25,6 +25,8 @@ class test_kong_test(local_helpers):
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1, False)
 
   def test_noMatchingCerts(self):
+    self.deleteAllCerts()
+
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url http://127.0.0.1:8381)\nEnd of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
@@ -34,11 +36,13 @@ class test_kong_test(local_helpers):
 
 
   def test_singleMatchingCert(self):
+    self.deleteAllCerts()
+    
     #Add a cert with SNI=hosta.com
-    self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
+    cartID = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
 
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url http://127.0.0.1:8381)\n"
-    expectedOutput += "\n"
+    expectedOutput += "Update cert for hosta.com (" + cartID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"

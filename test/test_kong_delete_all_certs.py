@@ -18,6 +18,7 @@ class certHelpers(testHelperSuperClass):
 
 class test_kong_Delete_all_certs(certHelpers):
   def test_simpleTest(self):
+    self.deleteAllCerts()
 
     certData = []
     #Create 3 Certs
