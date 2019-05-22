@@ -47,14 +47,6 @@ files = {
     'snis': (None, newSnis)
 }
 
-certfileContents = ""
-with open(certfile, 'r') as myfile:
-    certfileContents=myfile.read()
-privkeyfile = ""
-with open(certfile, 'r') as myfile:
-    privkeyfileContents=myfile.read()
-
-
 certMatchList = certMatchList.split(",")
 
 r = requests.get(kongURL + "/certificates/")
@@ -88,3 +80,4 @@ for cert in jsonResp["data"]:
 
 
 print("End of " + sys.argv[0])
+exit(0)

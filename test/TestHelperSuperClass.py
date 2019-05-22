@@ -28,7 +28,10 @@ class testHelperSuperClass(unittest.TestCase):
     if not correctReturnCode:
       print("stdOut:" + str(decode_or_none(commandOutputObj.stdout)))
       print("stdErr:" + str(decode_or_none(commandOutputObj.stderr)))
-      self.assertFalse(True, msg="Wrong return code recieved got " + str(commandOutputObj.returncode) + " expected one of " + str(expectedReturnCodes))
+      if commandOutputObj.returncode == -1:
+        self.assertFalse(True, msg="Command timeed out and didn't return")
+      else:
+        self.assertFalse(True, msg="Wrong return code recieved got " + str(commandOutputObj.returncode) + " expected one of " + str(expectedReturnCodes))
 
     if skipOutputChecks:
       return commandOutputObj
@@ -38,7 +41,25 @@ class testHelperSuperClass(unittest.TestCase):
     stderrString = None
     stderrString = bytes_to_string(commandOutputObj.stderr)
 
-    if stdoutString != expectedOutput:
+    if (stdoutString is None) and (expectedOutput is None):
+      return commandOutputObj
+    if stdoutString is None:
+      print("Wrong Output: GOT:")
+      print("<<<<NONE>>>>")
+      print("--------------EXP:")
+      print(expectedOutput)
+      print("--------------")
+      self.assertTrue(False)
+
+    if expectedOutput is None:
+      print("Wrong Output: GOT:")
+      print(stdoutString)
+      print("--------------EXP:")
+      print("<<<<NONE>>>>")
+      print("--------------")
+      self.assertTrue(False)
+
+    if stdoutString.strip().strip('\n') != expectedOutput.strip().strip('\n'):
       print("Wrong Output: GOT:")
       print(stdoutString)
       print("--------------EXP:")
