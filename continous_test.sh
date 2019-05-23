@@ -28,16 +28,17 @@ if [[ ${RES} -ne 0 ]]; then
 fi
 echo "wget check passed"
 
+pip3 install python_Testing_Utilities
 
 if [ E${TESTFILE} == "Eall" ]; then
   echo "Normal Ver"
-  until ack -f ./scripts ./test | entr -d nosetests --rednose ./test; do sleep 1; done
+  until (find ./test && find ./scripts) | entr -d nosetests --rednose ./test; do sleep 1; done
 else
   echo "Single file version"
-  until ack -f ./scripts ./test | entr -d nosetests --rednose ${1}; do sleep 1; done
+  until (find ./test && find ./scripts) | entr -d nosetests --rednose ${1}; do sleep 1; done
 fi
 
-#docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/continous_test.sh /ext_volume all
+#docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/continous_test.sh /ext_volume all
 
 
 #docker run --rm --name container-name --entrypoint /bin/sh -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0

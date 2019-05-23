@@ -3,9 +3,15 @@ from executor import executeCommand
 import python_Testing_Utilities as testUtils
 import json
 import time
+import os
 
 class testHelperSuperClass(unittest.TestCase):
-  kong_server = "http://127.0.0.1:8381"
+  kong_server = "TODO" #"http://127.0.0.1:8381"
+  def __init__(self, *args, **kwargs):
+    super(testHelperSuperClass, self).__init__(*args, **kwargs)
+    if "KONGTESTURL" not in os.environ:
+      raise Exception("enviroment variable KONGTESTURL not specified")
+    self.kong_server = os.environ["KONGTESTURL"]
   
   def executeCommand(self, cmdToExecute, expectedOutput, expectedErrorOutput, expectedReturnCodes, timeout, skipOutputChecks):
 
