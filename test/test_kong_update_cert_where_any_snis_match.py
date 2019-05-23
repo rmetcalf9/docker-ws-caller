@@ -36,7 +36,7 @@ class test_kong_test(local_helpers):
   def test_noMatchingCerts(self):
     self.deleteAllCerts()
 
-    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url http://127.0.0.1:8381)\nEnd of ./scripts/kong_update_cert_where_any_snis_match"
+    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\nEnd of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
      
@@ -50,7 +50,7 @@ class test_kong_test(local_helpers):
     #Add a cert with SNI=hosta.com
     certID = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
 
-    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url http://127.0.0.1:8381)\n"
+    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
@@ -85,7 +85,7 @@ class test_kong_test(local_helpers):
     cartIDc = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDd = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
 
-    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url http://127.0.0.1:8381)\n"
+    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certIDa + ") - 200\n"
     expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - 409\n"
     expectedOutput += "{'Date': 'Thu, 23 May 2019 07:50:57 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Server': 'kong/0.13.1'}\n"

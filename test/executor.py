@@ -52,7 +52,7 @@ def executeCommandINTERNAL(jobCmd, timeout):
     #print("Timeout Check:", (time.time() - start_time))
     if (time.time() - start_time) > timeout:
       ##os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
-      ###proc.terminate()
+      proc.terminate()
       
       #valid return codes are between 0-255. I have hijacked -1 for timeout
       returncode = -1
