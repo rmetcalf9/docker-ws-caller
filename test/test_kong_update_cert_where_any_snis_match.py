@@ -67,7 +67,7 @@ class test_kong_test(local_helpers):
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
 
-    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url http://127.0.0.1:8381)\n"
+    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
