@@ -29,7 +29,7 @@ fi
 echo "wget check passed"
 
 
-if [[ E${TESTFILE} == "Eall" ]]; then
+if [ E${TESTFILE} == "Eall" ]; then
   echo "Normal Ver"
   until ack -f ./scripts ./test | entr -d nosetests --rednose ./test; do sleep 1; done
 else
@@ -37,5 +37,7 @@ else
   until ack -f ./scripts ./test | entr -d nosetests --rednose ${1}; do sleep 1; done
 fi
 
-#docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.4.2 /ext_volume/continous_test.sh /ext_volume all
+#docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/continous_test.sh /ext_volume all
 
+
+#docker run --rm --name container-name --entrypoint /bin/sh -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0
