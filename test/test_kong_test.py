@@ -29,4 +29,9 @@ class test_kong_test(testHelperSuperClass):
     
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 2, False)
 
-
+  def test_commandExeuteTimeout(self):
+    cmdToExecute = "sleep 10"
+    expectedOutput = ""
+    expectedErrorOutput = None
+    
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 2, True)
