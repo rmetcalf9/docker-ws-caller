@@ -14,7 +14,14 @@ class local_helpers(testHelperSuperClass):
     }
     headers = {}
     resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201])
-    return resp["id"]
+    
+    #MAKE SURE CERT HAS BEEN ADDED
+    resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", files, [200])
+    found = False
+    for x in resp2["data"]:
+      if x["id"]==resp["id"]:
+        return resp["id"]
+    self.assertTrue(False, msg="After sucessful create of certificate a get request did not return it")
 
 
 class test_kong_test(local_helpers):

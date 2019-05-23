@@ -31,7 +31,12 @@ class local_helpers(testHelperSuperClass):
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
     outputLines = a.stdout.decode().strip().strip("\n").split("\n")
-    self.assertEqual(len(outputLines),expectedLinesInOutput, msg="Wrong number of lines in output")
+    
+    if len(outputLines) != expectedLinesInOutput:
+      print("-----------Got Output len " + str(len(outputLines)) + "------------------")
+      for x in outputLines:
+        print(x)
+      self.assertEqual(len(outputLines),expectedLinesInOutput, msg="Wrong number of lines in output")
     
     compline = 0
     self.assertEqual(outputLines[compline], "Start of ./scripts/kong_add_upstream", msg="Error in line " + str(compline+1))
