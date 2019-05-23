@@ -66,12 +66,13 @@ class test_kong_test(local_helpers):
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostb.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
-
+    time.sleep(0.4)
+    
+    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
-    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
      
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
 
@@ -85,6 +86,7 @@ class test_kong_test(local_helpers):
     cartIDc = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDd = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
 
+    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,hostc.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certIDa + ") - 200\n"
     expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - 409\n"
@@ -92,7 +94,6 @@ class test_kong_test(local_helpers):
     expectedOutput += "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
     expectedOutput += "ERROR bad return"
     expectedErrorOutput = None
-    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,hostc.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
      
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 2, True)
     

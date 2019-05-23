@@ -23,20 +23,20 @@ services:
     - tmp-kong-stack
 
   #Setup kong database - not needed after i migrated the first time
-  #kong-migration:
-  #  image: kong:0.13
-  #  deploy:
-  #    restart_policy:
-  #      condition: on-failure
-  #  environment:
-  #    - KONG_DATABASE=postgres
-  #    - KONG_PG_HOST=dbb
-  #  command: kong migrations up
-  #  deploy:
-  #    restart_policy:
-  #      condition: on-failure
-  # networks:
-  # - tmp-kong-stack
+  kong-migration:
+    image: kong:0.13
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=dbb
+    command: kong migrations up
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+    - tmp-kong-stack
 
   kong:
     #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl

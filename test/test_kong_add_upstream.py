@@ -63,8 +63,18 @@ class local_helpers(testHelperSuperClass):
       if outputLines[compline] == "Not removing - current target":
         gotNotRemoving = True
       else:
-        self.assertFalse(True,msg="TODO PROCESS " + outputLines[compline])
+        a = outputLines[compline].split(' ')
+        self.assertEqual(len(a), 5, msg="Badly formed line")
+        if a[2] in targetsExpectedToBeRemoved:
+          if targetsExpectedToBeRemoved[a[2]]["found"]:
+            self.assertFalse(True,msg="Removed same target twice")            
+          targetsExpectedToBeRemoved[a[2]]["found"] = True
+        else:
+          self.assertFalse(True,msg="Removed target we didn't expect: " + outputLines[compline])
       compline += 1
+    for x in targetsExpectedToBeRemoved:
+      if not targetsExpectedToBeRemoved[x]["found"]:
+        self.assertFalse(True, msg="Did not remove target " + targetsExpectedToBeRemoved[x]["name"])
       
     if not gotNotRemoving:
       self.assertTrue(False, msg="Did not recieve Not removing notice")
@@ -115,10 +125,12 @@ class test_kong_test(local_helpers):
     test_target_name2 = "target_Name2:8022"
     self.delete_all_upstreams()
     self.add_new_upstream(test_service_name, test_target_name1, True, expectUpstreamToExist=False, targetsExpectedToBeRemoved=[])
-    self.add_new_upstream(test_service_name, test_target_name2, True, expectUpstreamToExist=True, targetsExpectedToBeRemoved=[])
+    self.add_new_upstream(test_service_name, test_target_name2, True, expectUpstreamToExist=True, 
+      targetsExpectedToBeRemoved={test_target_name1: {"name": test_target_name1, "found": False}}
+    )
     upstreamTargets = self.get_upstream_targetlist(test_service_name)
     self.assertEqual(len(upstreamTargets), 1, msg="Wrong number of targets")
-    self.assertEqual(upstreamTargets[0]["target"],test_target_name1, msg="Target mismatch")
+    self.assertEqual(upstreamTargets[0]["target"],test_target_name2, msg="Target mismatch")
 
     pass
   def test_add_existing_upstream_and_donot_remove_other_targets(self):

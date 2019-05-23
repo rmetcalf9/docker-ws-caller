@@ -30,6 +30,7 @@ echo "wget check passed"
 
 pip3 install python_Testing_Utilities
 pip3 install requests
+pip install requests
 
 if [ E${TESTFILE} == "Eall" ]; then
   echo "Normal Ver"

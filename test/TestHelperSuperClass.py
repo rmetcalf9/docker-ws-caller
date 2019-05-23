@@ -111,5 +111,5 @@ class testHelperSuperClass(unittest.TestCase):
 
     expectedErrorOutput = None
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
-    time.sleep(0.5)
+
 

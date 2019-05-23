@@ -25,6 +25,9 @@ def executeCommand(jobCmd, timeout):
   st.join()
   return st.retVal
 
+def preexecfn():
+  os.setsid() #prevent killing process from killing server
+
 #Function to execute the command. Passed the shell string and outputs the executed result
 def executeCommandINTERNAL(jobCmd, timeout):
   # https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess
@@ -41,7 +44,7 @@ def executeCommandINTERNAL(jobCmd, timeout):
     stderr=subprocess.STDOUT, 
     shell=True, 
     cwd=None, 
-    preexec_fn=None, #self.getDemoteFunction(), 
+    preexec_fn=preexecfn, #self.getDemoteFunction(), 
     env=job_env
   )
   returncode = None

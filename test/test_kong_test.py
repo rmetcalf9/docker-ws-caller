@@ -34,4 +34,4 @@ class test_kong_test(testHelperSuperClass):
     expectedOutput = ""
     expectedErrorOutput = None
     
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 2, True)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [-1], 2, True)
