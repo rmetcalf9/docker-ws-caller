@@ -17,22 +17,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-   # volumes:
-   # - ../../data_db/kong/db:/var/lib/postgresql/data
+    volumes:
+    - ./data:/var/lib/postgresql/data
+    networks:
+    - tmp-kong-stack
 
-  #Setup kong database
-  kong-migration:
-    image: kong:0.13
-    deploy:
-      restart_policy:
-        condition: on-failure
-    environment:
-      - KONG_DATABASE=postgres
-      - KONG_PG_HOST=dbb
-    command: kong migrations up
-    deploy:
-      restart_policy:
-        condition: on-failure
+  #Setup kong database - not needed after i migrated the first time
+  #kong-migration:
+  #  image: kong:0.13
+  #  deploy:
+  #    restart_policy:
+  #      condition: on-failure
+  #  environment:
+  #    - KONG_DATABASE=postgres
+  #    - KONG_PG_HOST=dbb
+  #  command: kong migrations up
+  #  deploy:
+  #    restart_policy:
+  #      condition: on-failure
+  # networks:
+  # - tmp-kong-stack
 
   kong:
     #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl
@@ -57,6 +61,14 @@ services:
       test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:80 || exit 1"]
       interval: 5s
       retries: 10
+    networks:
+    - tmp-kong-stack
+
+networks:
+  tmp-kong-stack:
+    external: true
+
+
 
 
 ##docker stack deploy --compose-file=docker-compose.yml kongforautotest

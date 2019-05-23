@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-RUN apk add --no-cache curl python python3 gcc python3-dev linux-headers build-base libffi-dev && \
+RUN apk add --no-cache curl python python3 gcc python3-dev linux-headers build-base libffi-dev ack entr && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --upgrade pip setuptools && \
