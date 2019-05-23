@@ -13,6 +13,6 @@ wget -qO- http://127.0.0.1:8381 > /dev/null
 if [ $# -eq 0 ]; then
   until ack -f --python  ./scripts ./test | entr -d nosetests --rednose ./test; do sleep 1; done
 else
-  until ack -f --python  ./scripts ./test | entr -d nosetests --rednose ./test/${1}; do sleep 1; done
+  until ack -f --python  ./scripts ./test | entr -d nosetests --rednose ${1}; do sleep 1; done
 fi
 

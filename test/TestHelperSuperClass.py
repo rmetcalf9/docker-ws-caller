@@ -2,6 +2,7 @@ import unittest
 from executor import executeCommand
 import python_Testing_Utilities as testUtils
 import json
+import time
 
 class testHelperSuperClass(unittest.TestCase):
   kong_server = "http://127.0.0.1:8381"
@@ -78,6 +79,8 @@ class testHelperSuperClass(unittest.TestCase):
     try:
       return json.loads(resp), respCode
     except:
+      if resp.strip().strip("\n") == "":
+        return {}, respCode
       print("Got non JSON response:")
       print(resp)
       print("-----------")
@@ -88,6 +91,8 @@ class testHelperSuperClass(unittest.TestCase):
     try:
       return json.loads(resp), respCode
     except:
+      if resp.strip().strip("\n") == "":
+        return {}, respCode
       print("Got non JSON response:")
       print(resp)
       print("-----------")
@@ -100,4 +105,5 @@ class testHelperSuperClass(unittest.TestCase):
 
     expectedErrorOutput = None
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
+    time.sleep(0.5)
 
