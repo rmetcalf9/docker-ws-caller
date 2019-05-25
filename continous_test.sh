@@ -4,7 +4,7 @@ if [ ${1} == "docker" ]; then
   exit 0
 fi
 
-export KONGTESTURL=127.0.0.1:8381
+export KONGTESTURL=http://127.0.0.1:8381
 
 ./zz_continous_test.sh ./ all
 

@@ -22,7 +22,7 @@ cd ${1}
 #  for an unknown reason this corrects that
 wget -qO- ${KONGTESTURL} > /dev/null
 RES=$?
-if [[ ${RES} -ne 0 ]]; then
+if [ ${RES} -ne 0 ]; then
   echo "wget against ${KONGTESTURL} failed"
   exit ${RES}
 fi
@@ -32,7 +32,8 @@ pip3 install python_Testing_Utilities
 pip3 install requests
 pip install requests
 
-if [ E${TESTFILE} == "Eall" ]; then
+if [ "E${TESTFILE}" = "Eall" ]
+then
   echo "Normal Ver"
   until (find ./test && find ./scripts) | entr -d nosetests --rednose ./test; do sleep 1; done
 else
