@@ -94,7 +94,7 @@ class test_kong_test(local_helpers):
     expectedOutput += "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
     expectedOutput += "ERROR bad return"
     expectedErrorOutput = None
-     
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 2, True)
     
     outputArr = str(a.stdout,"utf-8").strip().strip('\n').split('\n')
