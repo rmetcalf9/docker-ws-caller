@@ -8,6 +8,7 @@
 #Example:
 #kong_install_service_and_route http://kong:8001 consumer_name
 
+echo "Start of ${0}"
 if [ $# -ne 3 ]; then
   echo "ERROR Wrong number of params"
   exit 1
@@ -20,8 +21,6 @@ CONSUMER_USERNAME=${3}
 ###This variable can be provided in development to get past curl cert errors
 ###export EXTRACURLOPTS="--insecure"
 ###EXTRACURLOPTS="--insecure"
-
-echo "Start of ${0}"
 
 if [ ! ${MODE} = "DELETE" ]; then
   if [ ! ${MODE} = "IGNORE" ]; then
