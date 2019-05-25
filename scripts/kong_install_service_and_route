@@ -35,6 +35,7 @@ NUMBER_EXPECTED_PARAMS_WITH_REPLACE_ROUTE=13
 ###export EXTRACURLOPTS="--insecure"
 ###EXTRACURLOPTS="--insecure"
 
+echo "Start of ${0}"
 echo "Installing service for ${2}"
 
 if [ $# -ne ${NUMBER_EXPECTED_PARAMS} ]; then

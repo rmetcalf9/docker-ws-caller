@@ -103,9 +103,9 @@ class local_helpers(testHelperSuperClass):
   
 class test_kong_test(local_helpers):
   def test_noArgs(self):
+    cmdToExecute = "./scripts/kong_add_upstream"
     expectedOutput = "Start of ./scripts/kong_add_upstream\nWrong number of arguments expected 4 - got 0\nRecieved args:\n['./scripts/kong_add_upstream']\n-"
     expectedErrorOutput = None
-    cmdToExecute = "./scripts/kong_add_upstream"
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1, False)
 
