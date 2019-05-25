@@ -23,7 +23,7 @@ class local_helpers(testHelperSuperClass):
     #check service no longer getable
     resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [404])
   
-class test_kong_test(local_helpers):
+class test_kong_test_install_service_and_route(local_helpers):
   def test_noArgs(self):
     cmdToExecute = "./scripts/kong_install_service_and_route"
     expectedOutput = ""

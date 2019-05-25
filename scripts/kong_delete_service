@@ -2,6 +2,7 @@
 
 # Script which will delete a service and any associated routes
 
+echo "Start of ${0}"
 if [ $# -ne 2 ]; then
   echo "ERROR Wrong number of params"
   exit 1
