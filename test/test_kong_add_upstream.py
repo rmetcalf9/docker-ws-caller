@@ -1,6 +1,7 @@
 from TestHelperSuperClass import testHelperSuperClass
 from executor import executeCommand
 import time
+import copy
 
 class local_helpers(testHelperSuperClass):
   def delete_all_upstreams(self):
@@ -155,16 +156,16 @@ class test_kong_test(local_helpers):
   def test_add_existing_upstream_and_donot_remove_other_targets(self):
     test_service_name = "service_name"
     test_targets = {}
-    test_targets["0"] = {"name": "target_Name1:8022", "found": False}
-    test_targets["1"] = {"name": "target_Name2:8022", "found": False}
-    test_targets["2"] = {"name": "target_Name3:8022", "found": False}
-    test_targets["3"] = {"name": "target_Name4:8022", "found": False}
-    test_targets["4"] = {"name": "target_Name5:8022", "found": False}
+    test_targets["target_Name1:8022"] = {"name": "target_Name1:8022", "found": False}
+    test_targets["target_Name2:8022"] = {"name": "target_Name2:8022", "found": False}
+    test_targets["target_Name3:8022"] = {"name": "target_Name3:8022", "found": False}
+    test_targets["target_Name4:8022"] = {"name": "target_Name4:8022", "found": False}
+    test_targets["target_Name5:8022"] = {"name": "target_Name5:8022", "found": False}
     self.delete_all_upstreams()
     num = 0
     for x in test_targets:
       num += 1
-      self.add_new_upstream(test_service_name, test_targets[x]["name"], removeOtherTargets=False, expectUpstreamToExist=(num != 1), targetsExpectedToBeRemoved=[])
+      self.add_new_upstream(test_service_name, test_targets[x]["name"], removeOtherTargets=False, expectUpstreamToExist=(num != 1), targetsExpectedToBeRemoved={})
 
     #verify upstreamlist changed correctly
     upstreamTargets = self.get_upstream_targetlist(test_service_name)
@@ -183,4 +184,34 @@ class test_kong_test(local_helpers):
     for x in test_targets:
       self.assertTrue(test_targets[x]["found"], msg="Target not found")
 
-#def test_add_existing_upstream_and_remove_five_other_targets(self):
+  def test_add_existing_upstream_and_remove_five_other_targets(self):
+    test_service_name = "service_name"
+    test_targets = {}
+    test_targets["target_Name1:8022"] = {"name": "target_Name1:8022", "found": False}
+    test_targets["target_Name2:8022"] = {"name": "target_Name2:8022", "found": False}
+    test_targets["target_Name3:8022"] = {"name": "target_Name3:8022", "found": False}
+    test_targets["target_Name4:8022"] = {"name": "target_Name4:8022", "found": False}
+    test_targets["target_Name5:8022"] = {"name": "target_Name5:8022", "found": False}
+    mainTestTarget = "main_target:8022"
+    self.delete_all_upstreams()
+    num = 0
+    for x in test_targets:
+      num += 1
+      self.add_new_upstream(test_service_name, test_targets[x]["name"], removeOtherTargets=False, expectUpstreamToExist=(num != 1), targetsExpectedToBeRemoved={})
+
+    upstreamTargets = self.get_upstream_targetlist(test_service_name)
+    self.assertEqual(len(upstreamTargets), 5, msg="Wrong number of targets")
+
+    #Now remove 5 targets
+    self.add_new_upstream(
+      test_service_name, mainTestTarget, 
+      removeOtherTargets=True, 
+      expectUpstreamToExist=(num != 1), 
+      targetsExpectedToBeRemoved=copy.deepcopy(test_targets)
+    )
+
+
+    upstreamTargets = self.get_upstream_targetlist(test_service_name)
+    self.assertEqual(len(upstreamTargets), 1, msg="Wrong number of targets")
+
+    self.assertEqual(upstreamTargets[0]["target"],mainTestTarget, msg="Target mismatch")
