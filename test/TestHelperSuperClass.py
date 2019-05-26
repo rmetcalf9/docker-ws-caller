@@ -88,12 +88,12 @@ class testHelperSuperClass(unittest.TestCase):
       linNum = 0
       for line in stdoutArr:
         linNum += 1
-        print("{:0>3d}: {}".format(linNum,line))
+        print("{:0>3d}: {}:".format(linNum,line))
       print("--------------EXP:")
       linNum = 0
       for line in expectedOutArr:
         linNum += 1
-        print("{:0>3d}: ".format(linNum) + line)
+        print("{:0>3d}: {}:".format(linNum,line))
       print("--------------")
       self.assertTrue(False)
 
