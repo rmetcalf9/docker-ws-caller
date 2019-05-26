@@ -66,11 +66,34 @@ class testHelperSuperClass(unittest.TestCase):
       print("--------------")
       self.assertTrue(False)
 
-    if stdoutString.strip().strip('\n') != expectedOutput.strip().strip('\n'):
-      print("Wrong Output: GOT:")
-      print(stdoutString)
+    stdoutPro = stdoutString.strip().strip('\n')
+    expectedOutPro = expectedOutput.strip().strip('\n')
+    stdoutArr = stdoutPro.split("\n")
+    expectedOutArr = expectedOutPro.split("\n")
+    if stdoutPro != expectedOutPro:
+      wrongLineNums = []
+      for linNum in range(0,len(stdoutArr)):
+        wrong = False
+        if linNum >= len(stdoutArr):
+          wrong = True
+        else:
+          if linNum >= len(expectedOutArr):
+            wrong = True
+          else:
+            if stdoutArr[linNum] != expectedOutArr[linNum]:
+              wrong = True
+        if wrong:
+          wrongLineNums.append(linNum+1)
+      print("Wrong Output: " + str(wrongLineNums) + " GOT:")
+      linNum = 0
+      for line in stdoutArr:
+        linNum += 1
+        print("{:0>3d}: {}".format(linNum,line))
       print("--------------EXP:")
-      print(expectedOutput)
+      linNum = 0
+      for line in expectedOutArr:
+        linNum += 1
+        print("{:0>3d}: ".format(linNum) + line)
       print("--------------")
       self.assertTrue(False)
 

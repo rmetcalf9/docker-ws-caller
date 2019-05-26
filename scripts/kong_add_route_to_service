@@ -12,6 +12,7 @@
 #null
 
 ##There is no checking to see if route already exists. Mutiple of the same route may exist if this is run mutiple times
+echo "Start of ${0}"
 
 KONG_URL=${1}
 SERVICE_NAME=${2}
