@@ -14,7 +14,7 @@ class local_helpers(testHelperSuperClass):
     }
     headers = {}
     resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201])
-    
+
     #MAKE SURE CERT HAS BEEN ADDED
     resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", files, [200])
     found = False
@@ -30,7 +30,7 @@ class test_kong_test(local_helpers):
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\nWrong number of arguments expected 5 - got 0\nRecieved args:\n['./scripts/kong_update_cert_where_any_snis_match']\n-"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match"
-    
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1, False)
 
   def test_noMatchingCerts(self):
@@ -39,14 +39,14 @@ class test_kong_test(local_helpers):
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\nEnd of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
-     
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
 
 
 
   def test_singleMatchingCert_OnlyOneCertInKong(self):
     self.deleteAllCerts()
-    
+
     #Add a cert with SNI=hosta.com
     certID = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
 
@@ -55,31 +55,31 @@ class test_kong_test(local_helpers):
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
-     
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
 
   def test_singleMatchingCert_MutipleOtherCertsInKong(self):
     self.deleteAllCerts()
-    
+
     #Add a cert with SNI=hosta.com
     certID = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostb.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
     time.sleep(0.4)
-    
+
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
-     
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
 
   def test_mutipleMatchingCert_MutipleOtherCertsInKong(self):
     self.deleteAllCerts()
     #hostc will error because all certs are associated with all sni's
-    
+
     #Add a cert with SNI=hosta.com
     certIDa = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
     cartIDb = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostb.com")
@@ -95,24 +95,53 @@ class test_kong_test(local_helpers):
     expectedOutput += "ERROR bad return"
     expectedErrorOutput = None
 
+
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 2, True)
-    
+
+    #The order of hosta and hostc returned from the service call changes
+    #in one case hostc will return first and no certs will be updated
+    #in second case hosta will return first, have it's cert updated and then hostc will error
     outputArr = str(a.stdout,"utf-8").strip().strip('\n').split('\n')
-    expectArr = expectedOutput.strip().strip('\n').split('\n')
-    if len(outputArr) != len(expectArr):
-      print("outputArr=")
-      for x in range(0,len(outputArr)):
-        print(str(x) + ":" + outputArr[x])
-      print("\n--------------")
-      print("expectArr=")
-      for x in range(0,len(expectArr)):
-        print(str(x) + ":" + expectArr[x])
-    self.assertEqual(len(outputArr), len(expectArr), msg="Wrong output size")
-    
-    for x in range(0,len(outputArr)):
-      if x != 4:
-        #line 4 has a date in it so just don't check it
-        self.assertEqual(outputArr[x], expectArr[x], msg="Error in output line " + str(x))
-    
 
+    if len(outputArr) == 6:
+        #hostc returned first and it errored
+        expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url " + self.kong_server + ")\n"
+        expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - 409\n"
+        expectedOutput += "{'Date': 'Thu, 23 May 2019 07:50:57 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Server': 'kong/0.13.1'}\n"
+        expectedOutput += "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
+        expectedOutput += "ERROR bad return"
+        expectArr = expectedOutput.strip().strip('\n').split('\n')
 
+        if len(outputArr) != len(expectArr):
+          print("outputArr=")
+          for x in range(0,len(outputArr)):
+            print(str(x) + ":" + outputArr[x])
+          print("\n--------------")
+          print("expectArr=")
+          for x in range(0,len(expectArr)):
+            print(str(x) + ":" + expectArr[x])
+        self.assertEqual(len(outputArr), len(expectArr), msg="Wrong output size")
+
+        for x in range(0,len(outputArr)):
+          if x != 3:
+            #line 3 has a date in it so just don't check it
+            self.assertEqual(outputArr[x], expectArr[x], msg="Error in output line " + str(x))
+    elif len(outputArr) == 7:
+        #hosta returned first was processed then hostc and it errored
+        expectArr = expectedOutput.strip().strip('\n').split('\n')
+        if len(outputArr) != len(expectArr):
+          print("outputArr=")
+          for x in range(0,len(outputArr)):
+            print(str(x) + ":" + outputArr[x])
+          print("\n--------------")
+          print("expectArr=")
+          for x in range(0,len(expectArr)):
+            print(str(x) + ":" + expectArr[x])
+        self.assertEqual(len(outputArr), len(expectArr), msg="Wrong output size")
+
+        for x in range(0,len(outputArr)):
+          if x != 4:
+            #line 4 has a date in it so just don't check it
+            self.assertEqual(outputArr[x], expectArr[x], msg="Error in output line " + str(x))
+    else:
+        self.assertFalse(True, msg="Wronge number of lines in output")
