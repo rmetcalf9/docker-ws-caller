@@ -24,14 +24,14 @@ services:
 
   #Setup kong database - not needed after i migrated the first time
   kong-migration:
-    image: kong:1.1.2
+    image: kong:0.13
     deploy:
       restart_policy:
         condition: on-failure
     environment:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=dbb
-    command: kong migrations bootstrap
+    command: kong migrations up
     deploy:
       restart_policy:
         condition: on-failure
@@ -40,7 +40,7 @@ services:
 
   kong:
     #tried changing to kong:0.12.0-alpine but didn't work as health check needs curl
-    image: kong:1.1.2
+    image: kong:0.13
     deploy:
       restart_policy:
         condition: on-failure
@@ -72,3 +72,4 @@ networks:
 
 
 ##docker stack deploy --compose-file=docker-compose.yml kongforautotest
+
