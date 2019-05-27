@@ -121,8 +121,8 @@ class testHelperSuperClass(unittest.TestCase):
       print("-----------")
       self.assertTrue(False)
 
-  def callKongServiceWithFiles(self, api, headers, method, files, expectedResponses):
-    resp, respCode = testUtils.callServiceSendMultiPartFiles(self, self.kong_server + api, headers, method, 1, expectedResponses, files)
+  def callKongServiceWithFiles(self, api, headers, method, files, expectedResponses, data):
+    resp, respCode = testUtils.callServiceSendMultiPartFilesAndData(self, self.kong_server + api, headers, method, 1, expectedResponses, files, data)
     try:
       return json.loads(resp), respCode
     except:

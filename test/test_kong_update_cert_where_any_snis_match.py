@@ -10,17 +10,27 @@ class local_helpers(testHelperSuperClass):
   def addCert(self, certfile, privkeyfile, snis):
     files = {
       'cert': (certfile, open(certfile, 'rb')),
-      'key': (privkeyfile, open(privkeyfile, 'rb')),
-      'snis': (None, snis)
+      'key': (privkeyfile, open(privkeyfile, 'rb'))
+      ,'snis': (None, snis)
     }
     headers = {}
-    resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201])
+    resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201], None)
+
+    if self.expected_kong_version == "1.1.2":
+        for x in snis.split(","):
+            data = {
+                'name': x
+            }
+            respSNI, respCodeSNI = self.callKongServiceWithFiles("/certificates/" + resp["id"] + "/snis", headers, "post", None, [201], data)
+
 
     #MAKE SURE CERT HAS BEEN ADDED
-    resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", None, [200])
+    resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", None, [200], None)
     found = False
     for x in resp2["data"]:
       if x["id"]==resp["id"]:
+        #resp3, respCode3 = self.callKongServiceWithFiles("/certificates/" + x["id"] + "/snis", headers, "get", None, [200])
+        #print("resp3", resp3)
         if not python_Testing_Utilities.objectsEqual(x["snis"],snis.split(",")):
             print("Got SNI: " + str(x["snis"]))
             print("Expected SNI: " + snis)
@@ -91,12 +101,18 @@ class test_kong_test(local_helpers):
     cartIDc = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostc.com")
     cartIDd = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
 
+    expErr = "409"
+    alreadyAsscMsg = "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
+    if self.expected_kong_version == "1.1.2":
+        expErr = "400"
+        alreadyAsscMsg = "b'{\"message\":\"2 schema violations (cert: required field missing; key: required field missing)\",\"name\":\"schema violation\",\"fields\":{\"cert\":\"required field missing\",\"key\":\"required field missing\"},\"code\":2}\n"
+
     cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,hostc.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certIDa + ") - 200\n"
-    expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - 409\n"
+    expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - " + expErr + "\n"
     expectedOutput += "{'Date': 'Thu, 23 May 2019 07:50:57 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Server': 'kong/0.13.1'}\n"
-    expectedOutput += "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
+    expectedOutput += alreadyAsscMsg
     expectedOutput += "ERROR bad return"
     expectedErrorOutput = None
 
@@ -111,9 +127,9 @@ class test_kong_test(local_helpers):
     if len(outputArr) == 6:
         #hostc returned first and it errored
         expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,hostc.com (kong url " + self.kong_server + ")\n"
-        expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - 409\n"
+        expectedOutput += "Update cert for hostc.com (" + cartIDc + ") - " + expErr + "\n"
         expectedOutput += "{'Date': 'Thu, 23 May 2019 07:50:57 GMT', 'Content-Type': 'application/json; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*', 'Server': 'kong/0.13.1'}\n"
-        expectedOutput += "b'{\"message\":\"SNI \\'hosta.com\\' already associated with existing certificate (" + certIDa + ")\"}\\n'\n"
+        expectedOutput += alreadyAsscMsg
         expectedOutput += "ERROR bad return"
         expectArr = expectedOutput.strip().strip('\n').split('\n')
 
@@ -144,9 +160,20 @@ class test_kong_test(local_helpers):
             print(str(x) + ":" + expectArr[x])
         self.assertEqual(len(outputArr), len(expectArr), msg="Wrong output size")
 
-        for x in range(0,len(outputArr)):
-          if x != 4:
+        for x in [0,1,2,3,5]:
             #line 4 has a date in it so just don't check it
-            self.assertEqual(outputArr[x], expectArr[x], msg="Error in output line " + str(x))
+            #As order is different lines 1 and 2 may be swapped
+            #ignoring line 6
+            if x == 1:
+                if not outputArr[x] == expectArr[x]:
+                    if not outputArr[x] == expectArr[x+1]:
+                        self.assertEqual(outputArr[x], expectArr[x], msg="ErrorNS1 in output line " + str(x+1))
+            if x == 2:
+                if not outputArr[x] == expectArr[x]:
+                    if not outputArr[x] == expectArr[x-1]:
+                        self.assertEqual(outputArr[x], expectArr[x], msg="ErrorNS2 in output line " + str(x+1))
+            else:
+                self.assertEqual(outputArr[x], expectArr[x], msg="Error in output line " + str(x+1))
+
     else:
-        self.assertFalse(True, msg="Wronge number of lines in output")
+        self.assertFalse(True, msg="Wrong number of lines in output ")
