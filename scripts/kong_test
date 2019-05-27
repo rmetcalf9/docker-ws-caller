@@ -43,6 +43,6 @@ if 'version' not in jsonResp:
     print('ERROR Response does not contain version')
     exit(1)
 
-print('Kong version' + jsonResp['version'])
+print('Kong version: ' + jsonResp['version'])
 
 print("End of " + sys.argv[0])

@@ -7,15 +7,21 @@ import os
 
 class testHelperSuperClass(unittest.TestCase):
   kong_server = "TODO" #"http://127.0.0.1:8381"
+  expected_kong_version = "TODO"
   def __init__(self, *args, **kwargs):
     super(testHelperSuperClass, self).__init__(*args, **kwargs)
     if "KONGTESTURL" not in os.environ:
       raise Exception("enviroment variable KONGTESTURL not specified")
     self.kong_server = os.environ["KONGTESTURL"]
+    self.expected_kong_version = "0.13.1"
+    if "KONGVER" in os.environ:
+        self.expected_kong_version = os.environ["KONGVER"]
 
   def executeCommand(self, cmdToExecute, expectedOutput, expectedErrorOutput, expectedReturnCodes, timeout, skipOutputChecks):
 
     commandOutputObj = executeCommand(cmdToExecute, timeout)
+    if commandOutputObj is None:
+        raise Exception("Execute command returned None type object")
 
     correctReturnCode = False
     for x in expectedReturnCodes:

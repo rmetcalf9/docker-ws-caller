@@ -1,5 +1,6 @@
 from TestHelperSuperClass import testHelperSuperClass
 from executor import executeCommand
+import python_Testing_Utilities
 import time
 
 #kong_update_cert_where_any_snis_match http://127.0.0.1:8001 hosta.com,t.ac.uk,asd.com ../examples/certs/server.crt ../examples/certs/server.key hosta.com,t.ac.uk,asd.com
@@ -16,10 +17,14 @@ class local_helpers(testHelperSuperClass):
     resp, respCode = self.callKongServiceWithFiles("/certificates", headers, "post", files, [201])
 
     #MAKE SURE CERT HAS BEEN ADDED
-    resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", files, [200])
+    resp2, respCode2 = self.callKongServiceWithFiles("/certificates", headers, "get", None, [200])
     found = False
     for x in resp2["data"]:
       if x["id"]==resp["id"]:
+        if not python_Testing_Utilities.objectsEqual(x["snis"],snis.split(",")):
+            print("Got SNI: " + str(x["snis"]))
+            print("Expected SNI: " + snis)
+            self.assertTrue(False,msg="SNIS not correct for cert")
         return resp["id"]
     self.assertTrue(False, msg="After sucessful create of certificate a get request did not return it")
 

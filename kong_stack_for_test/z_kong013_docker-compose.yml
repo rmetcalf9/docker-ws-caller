@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-    - ./data:/var/lib/postgresql/data
+    - ./data/0.13:/var/lib/postgresql/data
     networks:
     - tmp-kong-stack
 
@@ -72,4 +72,3 @@ networks:
 
 
 ##docker stack deploy --compose-file=docker-compose.yml kongforautotest
-
