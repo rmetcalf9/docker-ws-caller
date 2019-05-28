@@ -68,7 +68,7 @@ if [ ${RET} -ne 0 ]; then
   exit 1
 fi
 
-SERVICE_ID=$(echo ${SERVICE_JSON} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+SERVICE_ID=$(echo ${SERVICE_JSON} | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
 ret=$?
 if [ $ret -ne 0 ]; then
   echo "Could not find the service id"
@@ -84,7 +84,7 @@ if [ ${RET} -ne 0 ]; then
   exit 1
 fi
 
-NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
+NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python3 -c "import sys, json; print(len(json.load(sys.stdin)['data']))")
 echo " - Service has ${NUMBER_OF_ROUTES} routes"
 
 
@@ -102,7 +102,7 @@ append_comma_seperated_value()
   VAR_NAME=${1}
   NEW_VAL=${2}
   if [ E${NEW_VAL} != "Enull" ]; then
-    AA=$(echo ${NEW_VAL} | python -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print ' '.join(arr2)")
+    AA=$(echo ${NEW_VAL} | python3 -c "import sys; arr=sys.stdin.read().strip().split(','); arr2=list(map((lambda x: '--data \'${VAR_NAME}[]=' + x + '\''),arr)); print(' '.join(arr2))")
     CREATE_ROUTE_CMD="${CREATE_ROUTE_CMD} ${AA}"
   fi
 }

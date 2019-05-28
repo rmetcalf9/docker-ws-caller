@@ -96,6 +96,29 @@ for x in AUTHED_ACL_BLACKLIST_ll:
 print(" AUTHED_ACL_WHITELIST_l:",AUTHED_ACL_WHITELIST_l)
 print(" AUTHED_ACL_BLACKLIST_l:",AUTHED_ACL_BLACKLIST_l)
 
+def getKongVersion(kongURL):
+  r = requests.get(kongURL + "/")
+
+  if (r.status_code != 200):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR bad return")
+    exit(1)
+
+  jsonResp = json.loads(r.content.decode('utf-8'))
+
+  if 'version' not in jsonResp:
+      print('ERROR Response does not contain version')
+      print(jsonResp)
+      print('ERROR Response does not contain version')
+      exit(1)
+
+  return jsonResp['version']
+
+kv = getKongVersion(kongURL)
+
+print("Found kong version " + kv)
 
 def makeGetRequest(apiURL, expectedResult, errMsg):
   r = requests.get(kongURL + apiURL)
@@ -125,7 +148,6 @@ def makePostJSONRequest(apiURL, data, expectedResult, errMsg):
   print(errMsg)
   exit(1)
   
-  
 print("Getting a list of plugins")
 r = makeGetRequest("/services/" + SERVICE_NAME + "/plugins/", [200], "ERROR Failed to get list of plugins for service - does the service exist?")
 
@@ -145,13 +167,26 @@ if hasJWT:
   print("Already has JWT Plugin applied")
 else:
   print("Adding JWT plugin")
-  data={
-    'name': 'jwt', 
-    'config.secret_is_base64': 'true', 
-    'config.claims_to_verify': 'exp',
-    'config.cookie_names': 'jwt-auth-cookie',
-    'config.key_claim_name': key_claim_name
-  }
+  if kv == "1.1.2":
+    data={
+      'name': 'jwt', 
+      'config': {
+        'secret_is_base64': True,
+        'claims_to_verify': ['exp'],
+        'cookie_names': ['jwt-auth-cookie'],
+        'key_claim_name': key_claim_name
+      }
+    }
+  else:
+    data={
+      'name': 'jwt', 
+      'config': {
+        'secret_is_base64': True,
+        'claims_to_verify': 'exp',
+        'cookie_names': 'jwt-auth-cookie',
+        'key_claim_name': key_claim_name
+      }
+    }
   r = makePostJSONRequest("/services/" + SERVICE_NAME + "/plugins/", data , [201], "ERROR failed to add JWT Plugin")
 
 if hasACL:
@@ -164,16 +199,38 @@ else:
   if len(AUTHED_ACL_WHITELIST_l)!=0:
     if len(AUTHED_ACL_BLACKLIST_l)!=0:
       raise Exception("Got values for both whitelist and blacklist")
-  if len(AUTHED_ACL_WHITELIST_l)==0:
-    data = {
-      'name': 'acl', 
-      'config.blacklist': AUTHED_ACL_BLACKLIST_l
-    }
+      
+  if kv == "1.1.2":
+    if len(AUTHED_ACL_WHITELIST_l)==0:
+      data = {
+        'name': 'acl', 
+        'config': {
+          'blacklist': AUTHED_ACL_BLACKLIST_l
+        }
+      }
+    else:
+      data = {
+        'name': 'acl', 
+        'config': {
+          'whitelist': AUTHED_ACL_WHITELIST_l
+        }
+      }
   else:
-    data = {
-      'name': 'acl', 
-      'config.whitelist': AUTHED_ACL_WHITELIST_l
-    }
+    if len(AUTHED_ACL_WHITELIST_l)==0:
+      data = {
+        'name': 'acl', 
+        'config': {
+          'blacklist': AUTHED_ACL_BLACKLIST_l
+        }
+      }
+    else:
+      data = {
+        'name': 'acl', 
+        'config': {
+          'whitelist': AUTHED_ACL_WHITELIST_l
+        }
+      }
+
   r = makePostJSONRequest("/services/" + SERVICE_NAME + "/plugins/", data, [201], "ERROR failed to add ACL Plugin")
   
 
