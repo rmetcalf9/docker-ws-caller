@@ -90,6 +90,10 @@ class test_kong_test(local_helpers):
     expectedErrorOutput = None
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    
+    resp2, respCode2 = self.callKongServiceWithFiles("/certificates/" + certID, None, "get", None, [200], None)
+    self.assertEqual(resp2["snis"],["hosta.com"],msg="sni not set correctly")
+
 
   def test_mutipleMatchingCert_MutipleOtherCertsInKong(self):
     pass

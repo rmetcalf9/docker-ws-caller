@@ -8,7 +8,11 @@ class test_kong_test_delete_service(local_helpers):
     cmdToExecute = "./scripts/kong_delete_service"
     expectedOutput = ""
     expectedOutput += "Start of ./scripts/kong_delete_service\n"
-    expectedOutput += "ERROR Wrong number of params\n"
+    expectedOutput += "Wrong number of arguments expected 2 - got 0\n"
+    expectedOutput += "Recieved args:\n"
+    expectedOutput += "['./scripts/kong_delete_service']\n"
+    expectedOutput += "-\n"
+    
     expectedErrorOutput = None
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [1], 1, False)
@@ -37,9 +41,6 @@ class test_kong_test_delete_service(local_helpers):
     cmdToExecute += " null"
 
     expectedOutput = ""
-    expectedOutput += "Start of ./scripts/kong_install_service_and_route\n"
-    expectedOutput += "Installing service for \n"
-    expectedOutput += "Invalid paramaters expecting 12 but 0 were supplied\n"
     expectedErrorOutput = None
     
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
@@ -48,7 +49,7 @@ class test_kong_test_delete_service(local_helpers):
 
     #check service is there
     resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [200])
-    self.assertEqual(resp["name"],serviceName)    
+    self.assertEqual(resp["name"],serviceName)
     
     #delete service
     cmdToExecute = "./scripts/kong_delete_service " + self.kong_server + " " + serviceName

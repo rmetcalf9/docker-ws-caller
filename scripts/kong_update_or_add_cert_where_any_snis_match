@@ -17,6 +17,27 @@ curl -i -X PUT --url http://127.0.0.1:8001/certificates/ -F cert=.fullchain.pem 
 curl -i -X GET --url http://127.0.0.1:8001/certificates/
 '''
 
+def getKongVersion(kongURL):
+  r = requests.get(kongURL + "/")
+
+  if (r.status_code != 200):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR bad return")
+    exit(1)
+
+  jsonResp = json.loads(r.content.decode('utf-8'))
+
+  if 'version' not in jsonResp:
+      print('ERROR Response does not contain version')
+      print(jsonResp)
+      print('ERROR Response does not contain version')
+      exit(1)
+
+  return jsonResp['version']
+
+
 
 import sys
 import requests
@@ -39,13 +60,25 @@ certMatchList = sys.argv[2]
 certfile = sys.argv[3]
 privkeyfile = sys.argv[4]
 newSnis = sys.argv[5]
+
+kv = getKongVersion(kongURL)
+
+print("Found kong version " + kv)
+
 print(" updating where any cert matches any of " + certMatchList + " (kong url " + kongURL + ")")
 
-files = {
-    'cert': (certfile, open(certfile, 'rb')),
-    'key': (privkeyfile, open(privkeyfile, 'rb')),
-    'snis': (None, newSnis)
-}
+
+if kv == "1.1.2":
+  files = {
+      'cert': (certfile, open("./examples/certs/server.crt", 'rb')),
+      'key': (privkeyfile, open("./examples/certs/server.key", 'rb'))
+  }
+else:
+  files = {
+      'cert': (certfile, open("./examples/certs/server.crt", 'rb')),
+      'key': (privkeyfile, open("./examples/certs/server.key", 'rb')),
+      'snis': (None, newSnis)
+  }
 
 #certfileContents = ""
 #with open(certfile, 'r') as myfile:
@@ -98,6 +131,20 @@ if not foundAndUpdated:
     print(r.content)
     print("ERROR bad return")
     exit(1)
-
+  if kv == "1.1.2":
+    jsonResp = json.loads(r.content.decode('utf-8'))
+    certID =  jsonResp["id"]
+    for x in newSnis.split(","):
+      #print(x)
+      data = {
+        "name": x
+      }
+      rr = requests.post(kongURL + "/certificates/" + certID + "/snis", data=data)
+      if (rr.status_code != 201):
+        print(rr.headers)
+        print(rr.content)
+        print("ERROR bad return")
+        exit(1)
 
 print("End of " + sys.argv[0])
+exit(0)

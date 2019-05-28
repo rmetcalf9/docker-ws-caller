@@ -55,3 +55,4 @@ for cert in jsonResp["data"]:
     exit(1)
 
 print("End of " + sys.argv[0])
+exit(0)

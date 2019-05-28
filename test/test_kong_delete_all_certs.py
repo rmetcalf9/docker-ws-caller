@@ -1,19 +1,34 @@
 from TestHelperSuperClass import testHelperSuperClass
 import uuid
+import json
 
 class certHelpers(testHelperSuperClass):
   def createRandomCert(self):
-    randID = str(uuid.uuid4())
-    randomCertData = {
-      "key": "random_cert_" + randID,
-      "cert": "bbb",
-      "snis": randID + ".x.com"
-    }
-    resp, respCode = self.callKongService("/certificates", {}, "put", randomCertData, [201])
-    return randID + ".x.com", resp, respCode
+    sni = "SNI" + str(uuid.uuid4())
+    certfile = "./examples/certs/server.crt"
+    privkeyfile = "./examples/certs/server.key"
+    randomCertData = None
+    data = None
+    if self.expected_kong_version == "1.1.2":
+      randomCertData = {
+        "cert": (certfile, open(certfile, 'rb')),
+        "key": (privkeyfile, open(privkeyfile, 'rb')),
+        "snis[]": sni
+      }
+    else:
+      randomCertData = {
+        "cert": (certfile, open(certfile, 'rb')),
+        "key": (privkeyfile, open(privkeyfile, 'rb')),
+        "snis": sni
+      }
+    
+    resp, respCode = self.callKongServiceWithFiles("/certificates", {}, "post", randomCertData, [201], data=data)
+    return sni, resp, respCode
     
   def countNumberOfCertsInKong(self):
     resp, respCode = self.callKongService("/certificates", {}, "get", None, [200])
+    if self.expected_kong_version == "1.1.2":
+      return len(resp["data"])
     return resp["total"]
 
 class test_kong_Delete_all_certs(certHelpers):

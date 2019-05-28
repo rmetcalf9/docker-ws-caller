@@ -1,51 +1,59 @@
-#!/bin/sh
+#!/usr/bin/python3
 
 # Script which will delete a service and any associated routes
+## Query to find all serivce routes
+## Delete all service routes
+## Delete Service
 
-echo "Start of ${0}"
-if [ $# -ne 2 ]; then
-  echo "ERROR Wrong number of params"
-  exit 1
-fi
+import sys
+import requests
+import json
 
-KONG_URL=${1}
-SERVICE_NAME=${2}
+print("Start of " + sys.argv[0])
 
-ROUTE_LIST_JSON=$(curl -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME}/routes 2>&1)
-RET=$?
-if [ ${RET} -eq 22 ]; then
-  echo "Service dosen't exist"
-  exit 0
-fi
-if [ ${RET} -ne 0 ]; then
-  echo "Query route failed - ${RET}"
-  echo "Output: ${ROUTE_LIST_JSON}"
-  exit 1
-fi
+expectedNumOfArgs=2
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("-")
+  exit(1)
 
-NUMBER_OF_ROUTES=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print len(json.load(sys.stdin)['data'])")
+kongURL = sys.argv[1]
+serviceName = sys.argv[2]
 
-echo "Service has ${NUMBER_OF_ROUTES} routes"
+r = requests.get(kongURL + "/services/" + serviceName + "/routes")
 
-for i in `seq 1 ${NUMBER_OF_ROUTES}`;
-do
-  THIS_ROUTE_ID=$(echo ${ROUTE_LIST_JSON} | python -c "import sys, json; print json.load(sys.stdin)['data'][${i}-1]['id']")
-  curl -i -X DELETE --url ${KONG_URL}/routes/${THIS_ROUTE_ID}
-  RES=$?
-  if [[ ${RES} -ne 0 ]]; then
-    echo "ERROR Failed to delete route"
-    exit 1
-  fi
-done
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return")
+  exit(1)
 
-curl -i -X DELETE --url ${KONG_URL}/services/${SERVICE_NAME}
-RES=$?
-if [[ ${RES} -ne 0 ]]; then
-  echo "ERROR Failed to delete service"
-  exit 1
-fi
+jsonResp = json.loads(r.content.decode('utf-8'))
 
-echo "--------------------------"
-echo "${0} completed sucessfully"
-echo "--------------------------"
-exit 0
+print("Service has " + str(len(jsonResp["data"])) + " routes")
+for curRoute in jsonResp["data"]:
+  print(" Deleting route for hosts " + str(curRoute["hosts"]) + " with ID " + curRoute["id"])
+  r2 = requests.delete(kongURL + "/routes/" + curRoute["id"])
+  if (r.status_code != 200):
+    print(r.status_code)
+    print(r.headers)
+    print(r.content)
+    print("ERROR bad return when deleting route")
+    exit(1)
+
+print(" Finished deleting routes - now deleteing service")
+r2 = requests.delete(kongURL + "/services/" + serviceName)
+if (r.status_code != 200):
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print("ERROR bad return when deleting service")
+  exit(1)
+
+print("End of " + sys.argv[0])
+exit(0)
+
