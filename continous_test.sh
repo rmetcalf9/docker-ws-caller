@@ -11,7 +11,7 @@ if [ $# -gt 0 ]; then
 fi
 
 if [ "E${2}" = "Edocker" ]; then
-  docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 -e KONGVER=${KONGVER} -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/zz_continous_test.sh /ext_volume ${TESTFILE}
+  docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 -e KONGVER=${KONGVER} -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.1 /ext_volume/zz_continous_test.sh /ext_volume ${TESTFILE}
   exit 0
 fi
 
