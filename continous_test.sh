@@ -5,13 +5,13 @@ export KONGVER="1.1.2"
 
 
 TESTFILE=all
-if [ $# -eq 1 ]; then
+if [ $# -gt 0 ]; then
   TESTFILE=${1}
   echo "Setting test file to ${TESTFILE}"
 fi
 
-if [ "E${1}" = "Edocker" ]; then
-  docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/zz_continous_test.sh /ext_volume ${TESTFILE}
+if [ "E${2}" = "Edocker" ]; then
+  docker run --rm --network tmp-kong-stack -e KONGTESTURL=http://kong:8001 -e KONGVER=${KONGVER} -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:0.5.0 /ext_volume/zz_continous_test.sh /ext_volume ${TESTFILE}
   exit 0
 fi
 

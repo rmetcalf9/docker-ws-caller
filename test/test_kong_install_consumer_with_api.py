@@ -57,7 +57,10 @@ class test_kong_install_consumer_with_api(local_helpers):
     #check we have an api key
     resp, respCode = self.callKongService("/consumers/" + consumer_name + "/key-auth", {}, "get", None, [200])
     self.assertEqual(len(resp["data"]),1,msg="API key wrong")
-    self.assertEqual(resp["data"][0]["consumer_id"],consumer_id)
+    if self.expected_kong_version == "1.1.2":
+      self.assertEqual(resp["data"][0]["consumer"]["id"],consumer_id)
+    else:
+      self.assertEqual(resp["data"][0]["consumer_id"],consumer_id)
 
 
   def test_deleteMode_AlreadyExist(self):

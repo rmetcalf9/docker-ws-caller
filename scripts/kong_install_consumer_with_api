@@ -56,10 +56,11 @@ if [ ${RES} -ne 0 ]; then
 fi
 
 
-CONSUMER_ID=$(echo ${CONSUMER_JSON} | python -c "import sys, json; print json.load(sys.stdin)['id']")
+CONSUMER_ID=$(echo ${CONSUMER_JSON} | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
 ret=$?
 if [ $ret -ne 0 ]; then
-  echo "Could not find the consumer id"
+  echo "Could not find the consumer id from consumer get output:"
+  echo "${CONSUMER_JSON}"
   exit 1
 fi
 echo " - consumer id: ${CONSUMER_ID}"
@@ -71,7 +72,7 @@ if [ ${RES} -ne 0 ]; then
   exit 1
 fi
 
-CONSUMER_API_KEY=$(echo ${API_KEY_CREATE_JSON} | python -c "import sys, json; print json.load(sys.stdin)['key']")
+CONSUMER_API_KEY=$(echo ${API_KEY_CREATE_JSON} | python3 -c "import sys, json; print(json.load(sys.stdin)['key'])")
 ret=$?
 if [ $ret -ne 0 ]; then
   echo "Could not find the consumer api key"
