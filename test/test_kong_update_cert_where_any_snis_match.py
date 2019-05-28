@@ -75,6 +75,7 @@ class test_kong_test(local_helpers):
 
   def test_singleMatchingCert_MutipleOtherCertsInKong(self):
     self.deleteAllCerts()
+    snis = "hosta.com,t.ac.uk,asd.com"
 
     #Add a cert with SNI=hosta.com
     certID = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hosta.com")
@@ -83,8 +84,8 @@ class test_kong_test(local_helpers):
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
     time.sleep(0.4)
 
-    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " hosta.com,t.ac.uk,asd.com ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
-    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of hosta.com,t.ac.uk,asd.com (kong url " + self.kong_server + ")\n"
+    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " " + snis + " ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
+    expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of " + snis + " (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
@@ -92,8 +93,10 @@ class test_kong_test(local_helpers):
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
     
     resp2, respCode2 = self.callKongServiceWithFiles("/certificates/" + certID, None, "get", None, [200], None)
-    self.assertEqual(resp2["snis"],["hosta.com"],msg="sni not set correctly")
-
+    if not python_Testing_Utilities.objectsEqual(resp2["snis"],snis.split(",")):
+        print("Got SNI: " + str(resp2["snis"]))
+        print("Expected SNI: " + snis)
+        self.assertTrue(False,msg="SNIS not correct for cert")
 
   def test_mutipleMatchingCert_MutipleOtherCertsInKong(self):
     pass
