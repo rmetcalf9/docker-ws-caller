@@ -57,18 +57,18 @@ def executeCommandINTERNAL(jobCmd, timeout):
       os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
       ###proc.terminate()
       
-'''
-The above gives this error
-........................Exception in thread Thread-47:
-Traceback (most recent call last):
-  File "/usr/lib/python3.6/threading.py", line 916, in _bootstrap_inner
-    self.run()
-  File "/home/robert/otherGIT/docker-ws-caller/test/executor.py", line 20, in run
-    self.retVal = executeCommandINTERNAL(self.jobCmd, self.timeout)
-  File "/home/robert/otherGIT/docker-ws-caller/test/executor.py", line 57, in executeCommandINTERNAL
-    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
-ProcessLookupError: [Errno 3] No such process
-'''
+      '''
+      The above gives this error
+      ........................Exception in thread Thread-47:
+      Traceback (most recent call last):
+        File "/usr/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+          self.run()
+        File "/home/robert/otherGIT/docker-ws-caller/test/executor.py", line 20, in run
+          self.retVal = executeCommandINTERNAL(self.jobCmd, self.timeout)
+        File "/home/robert/otherGIT/docker-ws-caller/test/executor.py", line 57, in executeCommandINTERNAL
+          os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+      ProcessLookupError: [Errno 3] No such process
+      '''
       
       #valid return codes are between 0-255. I have hijacked -1 for timeout
       returncode = -1

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-export KONGVER="0.13.1"
-#export KONGVER="1.1.2"
+#export KONGVER="0.13.1"
+export KONGVER="1.1.2"
 
 
 TESTFILE=all
