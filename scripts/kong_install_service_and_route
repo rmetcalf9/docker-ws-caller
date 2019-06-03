@@ -76,11 +76,7 @@ if [ E${ROUTE_STRIP_PATH} != "Etrue" ]; then
   fi
 fi
 
-if [ "E${ROUTE_PATHS}" = "E" ]; then
-  echo "Invalid paramaters"
-  exit 1
-fi
-
+echo "Querying for existing service"
 SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME} 2>&1)
 RET=$?
 SERVICE_EXISTS_IN_KONG=1
@@ -106,6 +102,7 @@ if [ ${RET} -ne 0 ]; then
 fi
 
 if [ ${SERVICE_EXISTS_IN_KONG} -eq 0 ]; then
+  echo "Service not found creating"
   SERVICE_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X POST \
                        --url ${KONG_URL}/services/ \
                        --data "name=${SERVICE_NAME}" \
@@ -153,6 +150,8 @@ if [ $ret -ne 0 ]; then
 fi
 echo " - service id: ${SERVICE_ID}"
 
+echo "Getting list of routes"
+
 ROUTE_LIST_JSON=$(curl ${EXTRACURLOPTS} -sS --fail -X GET --url ${KONG_URL}/services/${SERVICE_NAME}/routes 2>&1)
 RET=$?
 if [ ${RET} -ne 0 ]; then
@@ -193,9 +192,23 @@ append_comma_seperated_value()
 }
 
 append_comma_seperated_value protocols ${ROUTE_PROTOCOLS}
-append_comma_seperated_value paths ${ROUTE_PATHS}
-append_comma_seperated_value hosts ${ROUTE_HOSTS}
-append_comma_seperated_value methods ${ROUTE_METHODS}
+
+if [ "E${ROUTE_PATHS}" != "E" ]; then
+  echo "Route has paths associated with it"
+  append_comma_seperated_value paths ${ROUTE_PATHS}
+fi
+
+if [ "E${ROUTE_HOSTS}" != "E" ]; then
+  echo "Route has hosts associated with it"
+  append_comma_seperated_value hosts ${ROUTE_HOSTS}
+fi
+
+if [ "E${ROUTE_METHODS}" != "E" ]; then
+  echo "Route has methods associated with it"
+  append_comma_seperated_value methods ${ROUTE_METHODS}
+fi
+
+echo "Creating route"
 
 CREATE_ROUTE_RESULT=$(eval ${CREATE_ROUTE_CMD})
 ret=$?

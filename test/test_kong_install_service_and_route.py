@@ -43,6 +43,7 @@ class test_kong_test_install_service_and_route(local_helpers):
     self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
     self.assertEqual(resp["data"][0]["hosts"],[route["host"]])
     self.assertEqual(resp["data"][0]["paths"],[route["path"]])
+    self.assertEqual(resp["data"][0]["methods"],["GET"])
 
 
   def test_ExistingServiceWhichAlreadyHasARoute_repalceRouteIsFalse(self):
@@ -80,6 +81,7 @@ class test_kong_test_install_service_and_route(local_helpers):
     self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
     self.assertEqual(resp["data"][0]["hosts"],[route["host"]])
     self.assertEqual(resp["data"][0]["paths"],[route["path"]])
+    self.assertEqual(resp["data"][0]["methods"],["GET"])
 
   def test_ExistingServiceWhichAlreadyHasARoute_repalceRouteIsTrue(self):
     serviceName = "TestServiceName"
@@ -133,3 +135,123 @@ class test_kong_test_install_service_and_route(local_helpers):
     self.assertEqual(resp["data"][0]["protocols"],[newroute["protocol"]])
     self.assertEqual(resp["data"][0]["hosts"],[newroute["host"]])
     self.assertEqual(resp["data"][0]["paths"],[newroute["path"]])
+    self.assertEqual(resp["data"][0]["methods"],["GET"])
+
+
+  def test_routeWithNoHost(self):
+    serviceName = "TestServiceName"
+    route = {
+      "protocol": "http",
+      "host": "",
+      "path": "/ppp"
+    }
+
+    #delete service and it's routes if it exists
+    self.deleteService(serviceName)
+
+    #call install service and route
+    self.createServiceAndRoute(serviceName, route)
+
+    #not checking output, just checking function
+
+    #check service is there
+    resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [200])
+    self.assertEqual(resp["name"],serviceName)
+
+    #check route is there
+    resp, respCode = self.callKongService("/services/" + serviceName + "/routes", {}, "get", None, [200])
+
+    self.assertEqual(len(resp["data"]),1)
+    self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
+    self.assertEqual(resp["data"][0]["hosts"],None) #No host
+    self.assertEqual(resp["data"][0]["paths"],[route["path"]])
+    self.assertEqual(resp["data"][0]["methods"],["GET"])
+
+  def test_routeWithNoHostAndNoPath(self):
+    serviceName = "TestServiceName"
+    route = {
+      "protocol": "http",
+      "host": "",
+      "path": ""
+    }
+
+    #delete service and it's routes if it exists
+    self.deleteService(serviceName)
+
+    #call install service and route
+    self.createServiceAndRoute(serviceName, route)
+
+    #not checking output, just checking function
+
+    #check service is there
+    resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [200])
+    self.assertEqual(resp["name"],serviceName)
+
+    #check route is there
+    resp, respCode = self.callKongService("/services/" + serviceName + "/routes", {}, "get", None, [200])
+
+    self.assertEqual(len(resp["data"]),1)
+    self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
+    self.assertEqual(resp["data"][0]["hosts"],None) #No host
+    self.assertEqual(resp["data"][0]["paths"],None)
+    self.assertEqual(resp["data"][0]["methods"],["GET"])
+
+  def test_routeWithNoMethods(self):
+    serviceName = "TestServiceName"
+    route = {
+      "protocol": "http",
+      "host": "route.host222.com",
+      "path": "/ppp222",
+      "method": ""
+    }
+
+    #delete service and it's routes if it exists
+    self.deleteService(serviceName)
+
+    #call install service and route
+    self.createServiceAndRoute(serviceName, route)
+
+    #not checking output, just checking function
+
+    #check service is there
+    resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [200])
+    self.assertEqual(resp["name"],serviceName)
+
+    #check route is there
+    resp, respCode = self.callKongService("/services/" + serviceName + "/routes", {}, "get", None, [200])
+
+    self.assertEqual(len(resp["data"]),1)
+    self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
+    self.assertEqual(resp["data"][0]["hosts"],[route["host"]])
+    self.assertEqual(resp["data"][0]["paths"],[route["path"]])
+    self.assertEqual(resp["data"][0]["methods"],None)
+
+  def test_routeWithPostMethod(self):
+    serviceName = "TestServiceName"
+    route = {
+      "protocol": "http",
+      "host": "route.host222.com",
+      "path": "/ppp222",
+      "method": "POST"
+    }
+
+    #delete service and it's routes if it exists
+    self.deleteService(serviceName)
+
+    #call install service and route
+    self.createServiceAndRoute(serviceName, route)
+
+    #not checking output, just checking function
+
+    #check service is there
+    resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [200])
+    self.assertEqual(resp["name"],serviceName)
+
+    #check route is there
+    resp, respCode = self.callKongService("/services/" + serviceName + "/routes", {}, "get", None, [200])
+
+    self.assertEqual(len(resp["data"]),1)
+    self.assertEqual(resp["data"][0]["protocols"],[route["protocol"]])
+    self.assertEqual(resp["data"][0]["hosts"],[route["host"]])
+    self.assertEqual(resp["data"][0]["paths"],[route["path"]])
+    self.assertEqual(resp["data"][0]["methods"],[route["method"]])

@@ -5,6 +5,16 @@ import json
 import time
 import os
 
+def decode_or_none(v):
+  if v is None:
+    return None
+  return v.decode()
+def bytes_to_string(v):
+  if v is None:
+    return None
+  return str(v, "utf-8")
+
+
 class testHelperSuperClass(unittest.TestCase):
   kong_server = "TODO" #"http://127.0.0.1:8381"
   expected_kong_version = "TODO"
@@ -27,16 +37,6 @@ class testHelperSuperClass(unittest.TestCase):
     for x in expectedReturnCodes:
       if x == commandOutputObj.returncode:
         correctReturnCode = True
-
-    def decode_or_none(v):
-      if v is None:
-        return None
-      return v.decode()
-    def bytes_to_string(v):
-      if v is None:
-        return None
-      return str(v, "utf-8")
-
 
     if not correctReturnCode:
       print("stdOut:" + str(decode_or_none(commandOutputObj.stdout)))
@@ -163,6 +163,10 @@ class testHelperSuperClass(unittest.TestCase):
     resp, respCode = self.callKongService("/services/" + serviceName, {}, "get", None, [404])
 
   def createServiceAndRoute(self, serviceName, routeDICT):
+    methods = "GET"
+    if "method" in routeDICT:
+      methods = routeDICT["method"]
+  
     cmdToExecute = "./scripts/kong_install_service_and_route"
     cmdToExecute += " " + self.kong_server
     cmdToExecute += " " + serviceName
@@ -170,10 +174,10 @@ class testHelperSuperClass(unittest.TestCase):
     cmdToExecute += " www.host.com"
     cmdToExecute += " 80"
     cmdToExecute += " /"
-    cmdToExecute += " " + routeDICT["protocol"]
-    cmdToExecute += " " + routeDICT["host"]
-    cmdToExecute += " " + routeDICT["path"]
-    cmdToExecute += " GET"
+    cmdToExecute += " " + "\"" + routeDICT["protocol"] + "\""
+    cmdToExecute += " " + "\"" + routeDICT["host"] + "\""
+    cmdToExecute += " " + "\"" + routeDICT["path"] + "\""
+    cmdToExecute += " " + "\"" + methods + "\""
     cmdToExecute += " null"
     cmdToExecute += " null"
 
@@ -184,7 +188,9 @@ class testHelperSuperClass(unittest.TestCase):
     expectedErrorOutput = None
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
-
+    #b = bytes_to_string(a.stdout)
+    #print(b)
+    
     ret = {
         "serviceID": None,
         "routeID": None
