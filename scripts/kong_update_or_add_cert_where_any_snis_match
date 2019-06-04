@@ -70,13 +70,13 @@ print(" updating where any cert matches any of " + certMatchList + " (kong url "
 
 if kv == "1.1.2":
   files = {
-      'cert': (certfile, open("./examples/certs/server.crt", 'rb')),
-      'key': (privkeyfile, open("./examples/certs/server.key", 'rb'))
+      'cert': (certfile, open(certfile, 'rb')),
+      'key': (privkeyfile, open(privkeyfile, 'rb'))
   }
 else:
   files = {
-      'cert': (certfile, open("./examples/certs/server.crt", 'rb')),
-      'key': (privkeyfile, open("./examples/certs/server.key", 'rb')),
+      'cert': (certfile, open(certfile, 'rb')),
+      'key': (privkeyfile, open(privkeyfile, 'rb')),
       'snis': (None, newSnis)
   }
 
