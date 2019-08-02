@@ -28,8 +28,44 @@ print("ws_name:" + ws_name)
 print("version:" + version)
 print("image_prefix:" + image_prefix)
 
+version_underscore = version.replace('.','_')
+
+service_name = ws_name + "_" + version_underscore
 
 client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+
+#Check the service is running at desired version and error if it is not
+
+
+
+foundService = False
+
+running_services_for_this_ws = []
+service_id_lookup = {}
+
+for service in client.services.list():
+  if service.name.startswith(ws_name):
+    if service.name == service_name:
+      foundService = True
+    else:
+      running_services_for_this_ws.append(service.name)
+      service_id_lookup[service.name] = service.id
+
+if foundService == False:
+  print("Error - could not find live service")
+  print("        (" + service_name + ")")
+  exit(1)
+
+print("Check live service is running PASSED (" + service_name + ")")
+
+#Sort services so they are removed in alphabetical order
+running_services_for_this_ws.sort()
+
+for service_name in running_services_for_this_ws:
+  print("Removing old service " + service_name)
+  service = client.services.get(service_id=service_id_lookup[service_name])
+  service.remove()
+
 
 #print("Listing images:")
 #for image in client.images.list():
