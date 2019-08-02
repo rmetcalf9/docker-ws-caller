@@ -84,18 +84,19 @@ class test_kong_test(local_helpers):
     cartIDx = self.addCert("./examples/certs/server.crt", "./examples/certs/server.key", "hostd.com")
     time.sleep(0.4)
 
-    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " " + snis + " ./examples/certs/server.crt ./examples/certs/server.key hosta.com,t.ac.uk,asd.com"
+    cmdToExecute = "./scripts/kong_update_cert_where_any_snis_match " + self.kong_server + " " + snis + " ./examples/certs/server.crt ./examples/certs/server.key " + snis
     expectedOutput = "Start of ./scripts/kong_update_cert_where_any_snis_match\n updating where any cert matches any of " + snis + " (kong url " + self.kong_server + ")\n"
     expectedOutput += "Update cert for hosta.com (" + certID + ") - 200\n"
     expectedOutput += "End of ./scripts/kong_update_cert_where_any_snis_match"
     expectedErrorOutput = None
 
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
-    
+
     resp2, respCode2 = self.callKongServiceWithFiles("/certificates/" + certID, None, "get", None, [200], None)
-    if not python_Testing_Utilities.objectsEqual(resp2["snis"],snis.split(",")):
+    expected = ["hosta.com"]
+    if not python_Testing_Utilities.objectsEqual(resp2["snis"],expected):
         print("Got SNI: " + str(resp2["snis"]))
-        print("Expected SNI: " + snis)
+        print("Expected SNI: " + str(expected))
         self.assertTrue(False,msg="SNIS not correct for cert")
 
   def test_mutipleMatchingCert_MutipleOtherCertsInKong(self):

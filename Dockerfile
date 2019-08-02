@@ -7,6 +7,7 @@ RUN apk add --no-cache curl python python3 gcc python3-dev linux-headers build-b
     pip3 install requests && \
     pip3 install nose && \
     pip3 install rednose && \
+    pip3 install docker && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     rm -r /root/.cache
@@ -38,4 +39,4 @@ ENTRYPOINT ["/bin/sh"]
 
 
 ## docker run --rm --name docker_ws_caller --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:latest -c "echo abc"
-## docker run --rm --name docker_ws_caller -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:latest 
+## docker run --rm --name docker_ws_caller -it --mount type=bind,source=$(pwd),target=/ext_volume metcarob/docker-ws-caller:latest
