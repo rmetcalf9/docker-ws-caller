@@ -25,7 +25,9 @@ RUN chmod +x /usr/bin/kong_install_service_and_route && \
     chmod +x /usr/bin/kong_add_upstream && \
     chmod +x /usr/bin/kong_delete_all_routes_apart_from_one && \
     chmod +x /usr/bin/kong_add_jwt_and_acl_plugins && \
-    chmod +x /usr/bin/kong_update_or_add_cert_where_any_snis_match
+    chmod +x /usr/bin/kong_update_or_add_cert_where_any_snis_match && \
+    chmod +x /usr/bin/docker_helloworld && \
+    chmod +x /usr/bin/docker_service_remove_non_live
 
 
 #Features to add

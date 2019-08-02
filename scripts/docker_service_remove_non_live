@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+
+import sys
+import docker
+
+print("Start of " + sys.argv[0])
+
+expectedNumOfArgs=3
+if len(sys.argv) != (expectedNumOfArgs + 1):
+  #need to subtract one as 0 argument is the file name
+  print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
+  print("Recieved args:")
+  print(sys.argv)
+  print("Expecting:")
+  print("Arg 1: WS_NAME (Used to derive service name - saas_user_management_system)")
+  print("Arg 2: VERSION  (Must be 3 . seperated numbers - 0.0.1)")
+  print("Arg 3: IMAGE_PREFIX (e.g. dockerhub user - metcarob/)")
+  print("-")
+  exit(1)
+
+print("Given a service name and version stops all services and removes all images that don't match that version")
+
+ws_name = sys.argv[1]
+version = sys.argv[2]
+image_prefix = sys.argv[3]
+
+print("ws_name:" + ws_name)
+print("version:" + version)
+print("image_prefix:" + image_prefix)
+
+
+client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+
+#print("Listing images:")
+#for image in client.images.list():
+#  print(image.id + "\t" + str(image.tags))
+
+print("End of " + sys.argv[0])
+exit(0)
