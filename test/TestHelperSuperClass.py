@@ -27,6 +27,16 @@ class testHelperSuperClass(unittest.TestCase):
     if "KONGVER" in os.environ:
         self.expected_kong_version = os.environ["KONGVER"]
 
+  def printExecuteCommandOutput(self, executeCommandRetVal):
+    if executeCommandRetVal is None:
+      print("ExecuteCommandOutput: None")
+    stdoutPro = bytes_to_string(executeCommandRetVal.stdout).strip().strip('\n')
+    stdoutArr = stdoutPro.split("\n")
+    linNum = 0
+    for line in stdoutArr:
+      linNum += 1
+      print("{:0>3d}: {}:".format(linNum,line))
+
   def executeCommand(self, cmdToExecute, expectedOutput, expectedErrorOutput, expectedReturnCodes, timeout, skipOutputChecks):
 
     commandOutputObj = executeCommand(cmdToExecute, timeout)
@@ -166,7 +176,7 @@ class testHelperSuperClass(unittest.TestCase):
     methods = "GET"
     if "method" in routeDICT:
       methods = routeDICT["method"]
-  
+
     cmdToExecute = "./scripts/kong_install_service_and_route"
     cmdToExecute += " " + self.kong_server
     cmdToExecute += " " + serviceName
@@ -190,7 +200,7 @@ class testHelperSuperClass(unittest.TestCase):
     a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
     #b = bytes_to_string(a.stdout)
     #print(b)
-    
+
     ret = {
         "serviceID": None,
         "routeID": None
