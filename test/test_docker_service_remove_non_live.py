@@ -89,7 +89,7 @@ class local_helpers(testHelperSuperClass):
       )
     time.sleep(0.5)
 
-  def assertVersionRunningList(self, lis, scriptoutput, ws_name=ws_nameGLOB):
+  def assertVersionRunningList(self, lis, scriptoutput, ws_name=ws_nameGLOB, skipImageCheck=False):
     self._assert_valid_list(lis)
     verDigits = -1
     if len(lis) > 0:
@@ -110,6 +110,9 @@ class local_helpers(testHelperSuperClass):
       print("Actual services running:" + str(running_service_names))
       self.assertTrue(False,msg="Wrong services running")
 
+    if skipImageCheck:
+      return
+
     #Finally make sure images have been deleted
     # no need to check for created images as if they are not there
     # the service would not run
@@ -121,6 +124,21 @@ class local_helpers(testHelperSuperClass):
             if scriptoutput != None:
               self.printExecuteCommandOutput(scriptoutput)
             self.assertTrue(False,msg="Image " + tag + " was not removed")
+
+  def assertImageList(self, lis, ws_name=ws_nameGLOB):
+    self._assert_valid_list(lis)
+    present_images = []
+    for image in client.images.list():
+      for tag in image.tags:
+        if tag.startswith(image_prefix + ws_name + ":"):
+          x = tag.split(":")
+          present_images.append(x[1])
+
+    if not python_Testing_Utilities.objectsEqual(present_images,lis):
+      print("present_images:", present_images)
+      print("expected present images:", lis)
+      self.assertFalse(True)
+
 
 class test_kong_test(local_helpers):
   def test_noArgs(self):
@@ -193,7 +211,7 @@ class test_kong_test(local_helpers):
     expectedErrorOutput = None
     cmdToExecute = "./scripts/" + scriptName + " " + ws_nameGLOB + " " + version + " " + image_prefix
 
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
 
     self.assertVersionRunningList(["0.4.5"], a)
 
@@ -209,12 +227,13 @@ class test_kong_test(local_helpers):
     expectedOutput += "version_digits:3\n"
     expectedOutput += "Check live service is running PASSED (testing_ws_0_4_5)\n"
     expectedOutput += "Removing old service " + ws_nameGLOB + "_0_4_0" + "\n"
+    expectedOutput += "Found 1 images to remove\n"
     expectedOutput += "Removing Image " + image_prefix + ws_nameGLOB + ":0.4.0" + "\n"
     expectedOutput += "End of ./scripts/" + scriptName + "\n"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/" + scriptName + " " + ws_nameGLOB + " " + version + " " + image_prefix
 
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
 
     self.assertVersionRunningList(["0.4.5"], a)
 
@@ -231,13 +250,14 @@ class test_kong_test(local_helpers):
     expectedOutput += "Check live service is running PASSED (testing_ws_0_4_5)\n"
     expectedOutput += "Removing old service " + ws_nameGLOB + "_0_3_4" + "\n"
     expectedOutput += "Removing old service " + ws_nameGLOB + "_0_4_0" + "\n"
+    expectedOutput += "Found 2 images to remove\n"
     expectedOutput += "Removing Image " + image_prefix + ws_nameGLOB + ":0.3.4" + "\n"
     expectedOutput += "Removing Image " + image_prefix + ws_nameGLOB + ":0.4.0" + "\n"
     expectedOutput += "End of ./scripts/" + scriptName + "\n"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/" + scriptName + " " + ws_nameGLOB + " " + version + " " + image_prefix
 
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
 
     self.assertVersionRunningList(["0.4.5"], a)
 
@@ -260,12 +280,13 @@ class test_kong_test(local_helpers):
     expectedOutput += "Check live service is running PASSED (" + serviceNameToStop + "_0_9_4)\n"
     expectedOutput += "Removing old service " + serviceNameToStop + "_0_4_0" + "\n"
     expectedOutput += "Removing old service " + serviceNameToStop + "_0_4_5" + "\n"
+    expectedOutput += "Found 2 images to remove\n"
     expectedOutput += "Removing Image " + image_prefix + serviceNameToStop + ":0.4.0" + "\n"
     expectedOutput += "Removing Image " + image_prefix + serviceNameToStop + ":0.4.5" + "\n"
     expectedOutput += "End of ./scripts/" + scriptName + "\n"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/" + scriptName + " " + serviceNameToStop + " " + "0.9.4" + " " + image_prefix
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
 
     self.assertVersionRunningList(["0.9.4"], scriptoutput=a, ws_name=serviceNameToStop)
     self.assertVersionRunningList(["0.4.5","0.4.0","0.9.4"], scriptoutput=a, ws_name=serviceNameShouldNotBeStopped)
@@ -289,12 +310,38 @@ class test_kong_test(local_helpers):
     expectedOutput += "Check live service is running PASSED (" + serviceNameToStop + "_0_9_4)\n"
     expectedOutput += "Removing old service " + serviceNameToStop + "_0_4_0" + "\n"
     expectedOutput += "Removing old service " + serviceNameToStop + "_0_4_5" + "\n"
+    expectedOutput += "Found 2 images to remove\n"
     expectedOutput += "Removing Image " + image_prefix + serviceNameToStop + ":0.4.0" + "\n"
     expectedOutput += "Removing Image " + image_prefix + serviceNameToStop + ":0.4.5" + "\n"
     expectedOutput += "End of ./scripts/" + scriptName + "\n"
     expectedErrorOutput = None
     cmdToExecute = "./scripts/" + scriptName + " " + serviceNameToStop + " " + "0.9.4" + " " + image_prefix
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, False)
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
 
     self.assertVersionRunningList(["0.9.4"], scriptoutput=a, ws_name=serviceNameToStop)
     self.assertVersionRunningList(["0.4.5","0.4.0","0.9.4"], scriptoutput=a, ws_name=serviceNameShouldNotBeStopped)
+
+  def test_removeImageWithoutRemovingService(self):
+    self.ensure_list_of_running_service_verisons(["0.0.2"], ws_name=ws_nameGLOB)
+    self._ensure_image_list_exists(["0.0.1","0.0.2"], ws_nameGLOB)
+
+    self.assertVersionRunningList(["0.0.2"], None, ws_name=ws_nameGLOB, skipImageCheck=True)
+    self.assertImageList(["0.0.1","0.0.2"], ws_name=ws_nameGLOB)
+
+    #Now run command which will not remove a service but will remove the image
+    expectedOutput = "Start of ./scripts/" + scriptName + "\n"
+    expectedOutput += "Given a service name and version stops all services and removes all images that don't match that version\n"
+    expectedOutput += "ws_name:" + ws_nameGLOB + "\n"
+    expectedOutput += "version:" + "0.0.2" + "\n"
+    expectedOutput += "image_prefix:" + image_prefix + "\n"
+    expectedOutput += "version_digits:3\n"
+    expectedOutput += "Check live service is running PASSED (" + ws_nameGLOB + "_0_0_2)\n"
+    expectedOutput += "Found 1 images to remove\n"
+    expectedOutput += "Removing Image " + image_prefix + ws_nameGLOB + ":0.0.1" + "\n"
+    expectedOutput += "End of ./scripts/" + scriptName + "\n"
+    expectedErrorOutput = None
+    cmdToExecute = "./scripts/" + scriptName + " " + ws_nameGLOB + " " + "0.0.2" + " " + image_prefix
+    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 6, False)
+
+    self.assertVersionRunningList(["0.0.2"], None, ws_name=ws_nameGLOB, skipImageCheck=True)
+    self.assertImageList(["0.0.2"], ws_name=ws_nameGLOB)

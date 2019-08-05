@@ -105,6 +105,10 @@ for image in client.images.list():
 
 images_to_remove.sort()
 
+if len(images_to_remove)>0:
+  print("Found " + str(len(images_to_remove)) + " images to remove")
+  time.sleep(5)
+
 failed_to_remove_images = []
 
 for imgToRemove in images_to_remove:
