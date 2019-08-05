@@ -115,7 +115,7 @@ for x in images_to_try_and_remove:
     try:
       client.images.remove(imgToRemove)
     except docker.errors.APIError as err:
-      if e.response.status_code != 409:
+      if err.response.status_code != 409:
         raise(err)
       print(err)
       print("Got 409 First try error - saving for retry as service my not be stopped yet")
