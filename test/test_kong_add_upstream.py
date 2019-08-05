@@ -11,11 +11,11 @@ class local_helpers(testHelperSuperClass):
       resp, respCode = self.callKongService("/upstreams/" + x["id"], {}, "delete", None, [204])
     time.sleep(0.3)
     return
-  
+
   def get_upstream_targetlist(self, serviceName):
     resp, respCode = self.callKongService("/upstreams/" + serviceName + "/targets", {}, "get", None, [200])
     return resp["data"]
-  
+
   def add_new_upstream(self, serviceName, targetName, removeOtherTargets, expectUpstreamToExist, targetsExpectedToBeRemoved):
     #executes code under test
     removeOtherTargetsString = "null"
@@ -33,15 +33,22 @@ class local_helpers(testHelperSuperClass):
     if removeOtherTargets:
       expectedLinesInOutput += 3
 
-    a = self.executeCommand(cmdToExecute, expectedOutput, expectedErrorOutput, [0], 1, True)
+    a = self.executeCommand(
+      cmdToExecute,
+      expectedOutput,
+      expectedErrorOutput,
+      [0],
+      timeout=2,
+      skipOutputChecks=True
+    )
     outputLines = a.stdout.decode().strip().strip("\n").split("\n")
-    
+
     if len(outputLines) != expectedLinesInOutput:
       print("-----------Got Output len " + str(len(outputLines)) + "------------------")
       for x in outputLines:
         print(x)
       self.assertEqual(len(outputLines),expectedLinesInOutput, msg="Wrong number of lines in output")
-    
+
     compline = 0
     self.assertEqual(outputLines[compline], "Start of ./scripts/kong_add_upstream", msg="Error in line " + str(compline+1))
     compline += 1
@@ -49,10 +56,10 @@ class local_helpers(testHelperSuperClass):
       self.assertEqual(outputLines[compline], "Will remove other targets", msg="Error in line " + str(compline+1))
     else:
       self.assertEqual(outputLines[compline], "Not removing other targets", msg="Error in line " + str(compline+1))
-      
+
     compline += 1
     self.assertEqual(outputLines[compline], " Add (or update) upstream " + serviceName + " with target " + targetName + " " + self.kong_server, msg="Error in line " + str(compline+1))
-    
+
     if not expectUpstreamToExist:
       compline += 1
       self.assertEqual(outputLines[compline], "Upstream dosen't already exist - Creating", msg="Error in line " + str(compline+1))
@@ -76,7 +83,7 @@ class local_helpers(testHelperSuperClass):
           self.assertEqual(len(a), 5, msg="Badly formed line")
           if a[2] in targetsExpectedToBeRemoved:
             if targetsExpectedToBeRemoved[a[2]]["found"]:
-              self.assertFalse(True,msg="Removed same target twice")            
+              self.assertFalse(True,msg="Removed same target twice")
             targetsExpectedToBeRemoved[a[2]]["found"] = True
           else:
             self.assertFalse(True,msg="Removed target we didn't expect: " + outputLines[compline])
@@ -84,10 +91,10 @@ class local_helpers(testHelperSuperClass):
       for x in targetsExpectedToBeRemoved:
         if not targetsExpectedToBeRemoved[x]["found"]:
           self.assertFalse(True, msg="Did not remove target " + targetsExpectedToBeRemoved[x]["name"])
-      
+
       if not gotNotRemoving:
         self.assertTrue(False, msg="Did not recieve Not removing notice")
-    
+
       #compline += 1 Previous step incremented compline already
       self.assertEqual(outputLines[compline], "Number of targets removed: " + str(len(targetsExpectedToBeRemoved)), msg="Error in line " + str(compline+1))
 
@@ -100,7 +107,7 @@ class local_helpers(testHelperSuperClass):
 
 
     return
-  
+
 class test_kong_test(local_helpers):
   def test_noArgs(self):
     cmdToExecute = "./scripts/kong_add_upstream"
@@ -118,7 +125,7 @@ class test_kong_test(local_helpers):
     upstreamTargets = self.get_upstream_targetlist(test_service_name)
     self.assertEqual(len(upstreamTargets), 1, msg="Wrong number of targets")
     self.assertEqual(upstreamTargets[0]["target"],test_target_name1, msg="Target mismatch")
-    
+
     #verify upstreamlist changed correctly
     upstreamList = self.get_upstream_targetlist(test_service_name)
     self.assertEqual(len(upstreamList),1)
@@ -145,7 +152,7 @@ class test_kong_test(local_helpers):
     test_target_name2 = "target_Name2:8022"
     self.delete_all_upstreams()
     self.add_new_upstream(test_service_name, test_target_name1, True, expectUpstreamToExist=False, targetsExpectedToBeRemoved=[])
-    self.add_new_upstream(test_service_name, test_target_name2, True, expectUpstreamToExist=True, 
+    self.add_new_upstream(test_service_name, test_target_name2, True, expectUpstreamToExist=True,
       targetsExpectedToBeRemoved={test_target_name1: {"name": test_target_name1, "found": False}}
     )
     #verify upstreamlist changed correctly
@@ -170,10 +177,10 @@ class test_kong_test(local_helpers):
     #verify upstreamlist changed correctly
     upstreamTargets = self.get_upstream_targetlist(test_service_name)
     self.assertEqual(len(upstreamTargets), 5, msg="Wrong number of targets")
-    
+
     for y in upstreamTargets:
       print(y)
-    
+
     for x in test_targets:
       for y in upstreamTargets:
         if y["target"]==test_targets[x]["name"]:
@@ -204,9 +211,9 @@ class test_kong_test(local_helpers):
 
     #Now remove 5 targets
     self.add_new_upstream(
-      test_service_name, mainTestTarget, 
-      removeOtherTargets=True, 
-      expectUpstreamToExist=(num != 1), 
+      test_service_name, mainTestTarget,
+      removeOtherTargets=True,
+      expectUpstreamToExist=(num != 1),
       targetsExpectedToBeRemoved=copy.deepcopy(test_targets)
     )
 
