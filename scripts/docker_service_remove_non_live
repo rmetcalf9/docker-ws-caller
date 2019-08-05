@@ -2,6 +2,7 @@
 
 import sys
 import docker
+import time
 
 print("Start of " + sys.argv[0])
 
@@ -105,11 +106,31 @@ for image in client.images.list():
     if (i["name"] + ":" + i["tag"]) in image.tags:
       i["found"] = True
 
+failed_to_remove_images = []
+
 for x in images_to_try_and_remove:
   if x["found"]==True:
     imgToRemove = x["name"] + ":" + x["tag"]
     print("Removing Image " + imgToRemove)
-    client.images.remove(imgToRemove)
+    try:
+      client.images.remove(imgToRemove)
+    except docker.errors.APIError as err:
+      if e.response.status_code != 409:
+        raise(err)
+      print(err)
+      print("Got 409 First try error - saving for retry as service my not be stopped yet")
+      failed_to_remove_images.append(x)
+
+if len(failed_to_remove_images)>0:
+  print("Image removal failed with conflict - possibly the service needs time to terminate")
+  print("Waiting 5 seconds and retrying...")
+  time.sleep(5)
+  for x in failed_to_remove_images:
+    if x["found"]==True:
+      imgToRemove = x["name"] + ":" + x["tag"]
+      print("Removing Image " + imgToRemove)
+      client.images.remove(imgToRemove)
+
 
 print("End of " + sys.argv[0])
 exit(0)
