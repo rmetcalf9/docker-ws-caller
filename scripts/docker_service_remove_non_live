@@ -24,9 +24,12 @@ ws_name = sys.argv[1]
 version = sys.argv[2]
 image_prefix = sys.argv[3]
 
+version_digits = len(version.split('.'))
+
 print("ws_name:" + ws_name)
 print("version:" + version)
 print("image_prefix:" + image_prefix)
+print("version_digits:" + str(version_digits))
 
 version_underscore = version.replace('.','_')
 
@@ -37,6 +40,25 @@ client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 #Check the service is running at desired version and error if it is not
 
 
+def isServiceThisWS(serviceName):
+  if not serviceName.startswith(ws_name + "_"):
+    return False
+  a = serviceName.split("_")
+  #We should have at least one item per version digit and a service name
+  if len(a) < (version_digits+1):
+    return False
+  #Last version_digits items must all be numbers
+  for x in range(1,version_digits+1):
+    if not a[len(a)-x].isdigit():
+      return False
+
+  #First section must equal ws_name
+  actualPrefix = ""
+  for x in range(0,len(a)-version_digits):
+    actualPrefix += a[x] + "_"
+  if actualPrefix != (ws_name + "_"):
+    return False
+  return True
 
 foundService = False
 
@@ -44,7 +66,7 @@ running_services_for_this_ws = []
 service_id_lookup = {}
 
 for service in client.services.list():
-  if service.name.startswith(ws_name):
+  if isServiceThisWS(service.name):
     if service.name == service_name:
       foundService = True
     else:
