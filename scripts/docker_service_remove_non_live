@@ -6,9 +6,22 @@ import time
 
 print("Start of " + sys.argv[0])
 
+argsWrong = False
+
+skipRunningCheck = False
+
 expectedNumOfArgs=3
 if len(sys.argv) != (expectedNumOfArgs + 1):
   #need to subtract one as 0 argument is the file name
+  if len(sys.argv) != (expectedNumOfArgs + 1 + 1):
+    if sys.argv[4] != "SkipRunningCheck":
+      print("Arg 4 is wrong - got ", sys.argv[4])
+      argsWrong = True
+  else:
+    argsWrong = True
+
+
+if argsWrong:
   print("Wrong number of arguments expected " + str(expectedNumOfArgs) + " - got " + str(len(sys.argv)-1))
   print("Recieved args:")
   print(sys.argv)
@@ -16,6 +29,7 @@ if len(sys.argv) != (expectedNumOfArgs + 1):
   print("Arg 1: WS_NAME (Used to derive service name - saas_user_management_system)")
   print("Arg 2: VERSION  (Must be 3 . seperated numbers - 0.0.1)")
   print("Arg 3: IMAGE_PREFIX (e.g. dockerhub user - metcarob/)")
+  print("Arg 4: SkipRunningCheck (optional)")
   print("-")
   exit(1)
 
@@ -74,12 +88,15 @@ for service in client.services.list():
       running_services_for_this_ws.append(service.name)
       service_id_lookup[service.name] = service.id
 
-if foundService == False:
-  print("Error - could not find live service")
-  print("        (" + service_name + ")")
-  exit(1)
+if not skipRunningCheck:
+  if foundService == False:
+    print("Error - could not find live service")
+    print("        (" + service_name + ")")
+    exit(1)
 
-print("Check live service is running PASSED (" + service_name + ")")
+    print("Check live service is running PASSED (" + service_name + ")")
+else:
+  print("Skipping live service running check")
 
 #Sort services so they are removed in alphabetical order
 running_services_for_this_ws.sort()
