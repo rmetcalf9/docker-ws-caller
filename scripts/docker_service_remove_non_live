@@ -17,6 +17,8 @@ if len(sys.argv) != (expectedNumOfArgs + 1):
     if sys.argv[4] != "SkipRunningCheck":
       print("Arg 4 is wrong - got ", sys.argv[4])
       argsWrong = True
+    else:
+      skipRunningCheck = True
   else:
     argsWrong = True
 
