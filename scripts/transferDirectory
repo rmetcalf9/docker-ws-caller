@@ -1,0 +1,31 @@
+#!/bin/sh
+
+echo "${0} start"
+set -e
+
+echo "You supplied ${#} params"
+
+if [ ${#} -ne 2 ]; then
+  echo "Error you should supply 2 params"
+  echo "1: Source directory"
+  echo "2: Target directory on target host"
+  echo "Note: if it dosen't exist the target dir will be created"
+  echo "      if it does exist the target dir will be replaed"
+  exit 1
+fi
+
+SRC_DIR=${1}
+TARG_DIR=${2}
+
+echo "SRC_DIR=${SRC_DIR}"
+echo "TARG_DIR=${TARG_DIR}"
+
+if [ ! -d ${SRC_DIR} ]; then
+  echo "Error - src dir dosen't exist"
+  exit 1
+fi
+
+echo "SPLIT_CHAR=${SPLIT_CHAR}"
+echo "Not implemented"
+
+echo "${0} completed successfully"

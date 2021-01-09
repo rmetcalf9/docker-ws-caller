@@ -27,7 +27,8 @@ RUN chmod +x /usr/bin/kong_install_service_and_route && \
     chmod +x /usr/bin/kong_add_jwt_and_acl_plugins && \
     chmod +x /usr/bin/kong_update_or_add_cert_where_any_snis_match && \
     chmod +x /usr/bin/docker_helloworld && \
-    chmod +x /usr/bin/docker_service_remove_non_live
+    chmod +x /usr/bin/docker_service_remove_non_live && \
+    chmod +x /usr/bin/transferDirectory
 
 
 #Features to add
