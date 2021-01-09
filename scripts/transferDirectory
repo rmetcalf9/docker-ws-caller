@@ -49,8 +49,8 @@ else
   echo "Found $ssh_key_file file"
 fi
 
-echo "About to run rsync"
-rsync -Pavr -e "ssh -p ${SSH_PORT} -i ${ssh_key_file} -o StrictHostKeyChecking=no" --rsync-path="mkdir -p ${TARG_DIR} && rsync" ${SRC_DIR} ${remote_host}:${TARG_DIR}
+echo "Running rsync"
+rsync -Pavr  --delete -e "ssh -p ${SSH_PORT} -i ${ssh_key_file} -o StrictHostKeyChecking=no" --rsync-path="mkdir -p ${TARG_DIR} && rsync" ${SRC_DIR} ${remote_host}:${TARG_DIR}
 
 
 echo "Complete"
