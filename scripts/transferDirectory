@@ -31,6 +31,7 @@ fi
 rdockerinit
 
 echo "Running rsync"
+ssh_key_file="${HOME}/.ssh/id_rdocker"
 rsync -Pavr  --delete -e "ssh -p ${SSH_PORT} -i ${ssh_key_file} -o StrictHostKeyChecking=no" --rsync-path="mkdir -p ${TARG_DIR} && rsync" ${SRC_DIR} ${remote_host}:${TARG_DIR}
 
 
