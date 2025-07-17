@@ -9,6 +9,8 @@ import os
 import time
 
 script_log = ""
+fail_time_interval = 2
+num_retries = 4
 
 username = os.environ.get('VAR_SL_USERNAME')
 if username is None:
@@ -79,14 +81,16 @@ if "From your account dashboard you can view your" not in response.text:
 
 
 # Step 3: Visit the checkout page
-def visit_checkout_page(checkout_url, num_retries_left=3):
+def visit_checkout_page(checkout_url, num_retries_left):
     checkout_response = session.get(checkout_url)
 
     if checkout_response.status_code != 200:
         if num_retries_left>0:
-            time.sleep(1)
+            script_log += " load checkout fail retrying... "
+            time.sleep(fail_time_interval)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
-        output_obj["script_log"] = f"Failed to load checkout page: {checkout_response.status_code}"
+        script_log += f"Failed to load checkout page: {checkout_response.status_code}"
+        output_obj["script_log"] = script_log
         output_obj["check_success"] = False
         print(json.dumps(output_obj))
         exit(0)
@@ -100,9 +104,11 @@ def visit_checkout_page(checkout_url, num_retries_left=3):
     table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
         if num_retries_left>0:
-            time.sleep(1)
+            script_log += " lcart table not found fail retrying... "
+            time.sleep(fail_time_interval)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
-        output_obj["script_log"] = f"Cart table not found in returned page"
+        script_log += f"Cart table not found in returned page"
+        output_obj["script_log"] = script_log
         output_obj["check_success"] = False
         print(json.dumps(output_obj))
         exit(0)
@@ -125,7 +131,7 @@ def visit_checkout_page(checkout_url, num_retries_left=3):
 
 ##print("Found", len(dates), " dates")
 
-(dates, item_texts) = visit_checkout_page(checkout_url)
+(dates, item_texts) = visit_checkout_page(checkout_url, num_retries)
 
 if len(item_texts) > 0:
     found = False
