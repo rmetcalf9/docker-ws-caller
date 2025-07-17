@@ -35,6 +35,13 @@ if notify_email is None:
     print("Environment variable VAR_NOTIFY_EMAIL is not set.")
     exit(1)
 
+output_obj = {
+    "inner_circle_name": inner_circle_name,
+    "checkout_url": checkout_url,
+    "notify_email": notify_email,
+    "check_success": False
+}
+
 # Start a session to persist cookies
 session = requests.Session()
 
@@ -62,9 +69,10 @@ response = session.post('https://www.samuelleeds.com/my-account/', data=login_da
 
 # Check if login was successful by looking for a redirect or logged-in text
 if "From your account dashboard you can view your" not in response.text:
-    print("❌ Login failed")
-    print("Response:", response.text[:500])
-    exit(1)
+    output_obj["script_log"] = "Login Failed"
+    output_obj["check_success"] = False
+    print(json.dumps(output_obj))
+    exit(0)
 
 ##print("✅ Login successful")
 ##print("Cookies:", session.cookies.get_dict())
@@ -75,8 +83,10 @@ def visit_checkout_page(checkout_url):
     checkout_response = session.get(checkout_url)
 
     if checkout_response.status_code != 200:
-        print(f"❌ Failed to load page: {checkout_response.status_code}")
-        exit(1)
+        output_obj["script_log"] = f"Failed to checkout page: {checkout_response.status_code}"
+        output_obj["check_success"] = False
+        print(json.dumps(output_obj))
+        exit(0)
 
     page_soup = BeautifulSoup(checkout_response.text, 'lxml')
     page_text = page_soup.get_text(separator='\n', strip=True)
@@ -86,8 +96,10 @@ def visit_checkout_page(checkout_url):
     # Find the table
     table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
-        printf("❌ Cart table not found")
-        exit(1)
+        output_obj["script_log"] = f"art table not found"
+        output_obj["check_success"] = False
+        print(json.dumps(output_obj))
+        exit(0)
 
     # Loop over each row (skip header if present)
     rows = table.find_all('fieldset')
@@ -130,14 +142,11 @@ for date in dates:
     if is_future:
         has_event_in_future = True
 
-output_obj = {
-    "inner_circle_name": inner_circle_name,
-    "checkout_url": checkout_url,
-    "notify_email": notify_email,
-    "dates": dates,
-    "item_texts": item_texts,
-    "has_event_in_future": has_event_in_future,
-    "script_log": script_log
-}
+output_obj["dates"] = dates
+output_obj["item_texts"] = item_texts
+output_obj["has_event_in_future"] = has_event_in_future
+output_obj["script_log"] = script_log
+output_obj["check_success"] = True
 
 print(json.dumps(output_obj))
+exit(0)
