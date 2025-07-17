@@ -84,6 +84,7 @@ def visit_checkout_page(checkout_url, num_retries_left=3):
 
     if checkout_response.status_code != 200:
         if num_retries_left>0:
+            time.sleep(1)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
         output_obj["script_log"] = f"Failed to load checkout page: {checkout_response.status_code}"
         output_obj["check_success"] = False
@@ -99,6 +100,7 @@ def visit_checkout_page(checkout_url, num_retries_left=3):
     table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
         if num_retries_left>0:
+            time.sleep(1)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
         output_obj["script_log"] = f"Cart table not found in returned page"
         output_obj["check_success"] = False
