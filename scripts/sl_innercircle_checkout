@@ -71,7 +71,8 @@ response = session.post('https://www.samuelleeds.com/my-account/', data=login_da
 
 # Check if login was successful by looking for a redirect or logged-in text
 if "From your account dashboard you can view your" not in response.text:
-    output_obj["script_log"] = "Login Failed"
+    script_log += "Login Failed "
+    output_obj["script_log"] = script_log
     output_obj["check_success"] = False
     print(json.dumps(output_obj))
     exit(0)
@@ -82,6 +83,7 @@ if "From your account dashboard you can view your" not in response.text:
 
 # Step 3: Visit the checkout page
 def visit_checkout_page(checkout_url, num_retries_left):
+    global script_log    
     checkout_response = session.get(checkout_url)
 
     if checkout_response.status_code != 200:
@@ -104,7 +106,7 @@ def visit_checkout_page(checkout_url, num_retries_left):
     table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
         if num_retries_left>0:
-            script_log += " lcart table not found fail retrying... "
+            script_log += "cart table not found fail retrying... "
             time.sleep(fail_time_interval)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
         script_log += f"Cart table not found in returned page"
