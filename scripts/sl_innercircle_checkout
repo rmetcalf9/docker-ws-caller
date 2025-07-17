@@ -6,6 +6,7 @@ import re
 from datetime import datetime
 import json
 import os
+import time
 
 username = os.environ.get('VAR_SL_USERNAME')
 if username is None:
@@ -68,40 +69,53 @@ if "From your account dashboard you can view your" not in response.text:
 
 
 # Step 3: Visit the checkout page
-checkout_response = session.get(checkout_url)
+def visit_checkout_page(checkout_url):
+    checkout_response = session.get(checkout_url)
 
-# Step 4: Extract text from the page
-if checkout_response.status_code != 200:
-    print(f"❌ Failed to load page: {checkout_response.status_code}")
-    exit(1)
+    if checkout_response.status_code != 200:
+        print(f"❌ Failed to load page: {checkout_response.status_code}")
+        exit(1)
 
-page_soup = BeautifulSoup(checkout_response.text, 'lxml')
-page_text = page_soup.get_text(separator='\n', strip=True)
+    page_soup = BeautifulSoup(checkout_response.text, 'lxml')
+    page_text = page_soup.get_text(separator='\n', strip=True)
 
-soup = BeautifulSoup(checkout_response.text, 'lxml')
+    soup = BeautifulSoup(checkout_response.text, 'lxml')
 
-# Find the table
-table = soup.find('table', class_='wfacp_mini_cart_items')
-if not table:
-    printf("❌ Cart table not found")
-    exit(1)
+    # Find the table
+    table = soup.find('table', class_='wfacp_mini_cart_items')
+    if not table:
+        printf("❌ Cart table not found")
+        exit(1)
 
-# Loop over each row (skip header if present)
-rows = table.find_all('tr')
+    # Loop over each row (skip header if present)
+    rows = table.find_all('tr')
 
-dates = []
-item_texts = []
-for row in rows:
-    # You can access all <td> cells within the row
-    cells = row.find_all('td')
-    cell_texts = [cell.get_text(strip=True) for cell in cells]
-    item_texts.append(cell_texts[0])
-    match = re.search(r'(\d{2}/\d{2}/\d{2})', cell_texts[0])
-    if match:
-        dates.append(match.group(1))
-    #print(cell_texts)
+    dates = []
+    item_texts = []
+    for row in rows:
+        # You can access all <td> cells within the row
+        cells = row.find_all('td')
+        cell_texts = [cell.get_text(strip=True) for cell in cells]
+        item_texts.append(cell_texts[0])
+        match = re.search(r'(\d{2}/\d{2}/\d{2})', cell_texts[0])
+        if match:
+            dates.append(match.group(1))
+        #print(cell_texts)
+
+    return (dates, item_texts)
 
 ##print("Found", len(dates), " dates")
+
+(dates, item_texts) = visit_checkout_page(checkout_url)
+
+if len(item_texts) > 0:
+    found = False
+    for item_text in item_texts:
+        if inner_circle_name.lower() in item_text.lower():
+            found = True
+    if not found:
+        time.sleep(1)
+        (dates, item_texts) = visit_checkout_page(checkout_url)
 
 
 has_event_in_future = False
