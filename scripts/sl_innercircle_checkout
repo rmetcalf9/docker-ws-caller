@@ -147,7 +147,7 @@ if len(item_texts) > 0:
     if not found:
         script_log += "inner_circle_name not in item text - retrying "
         time.sleep(1)
-        (dates, item_texts) = visit_checkout_page(checkout_url)
+        (dates, item_texts) = visit_checkout_page(checkout_url, num_retries)
 
 
 has_event_in_future = False
