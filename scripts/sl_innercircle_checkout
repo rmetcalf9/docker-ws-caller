@@ -8,6 +8,8 @@ import json
 import os
 import time
 
+script_log = ""
+
 username = os.environ.get('VAR_SL_USERNAME')
 if username is None:
     print("Environment variable VAR_SL_USERNAME is not set.")
@@ -82,22 +84,21 @@ def visit_checkout_page(checkout_url):
     soup = BeautifulSoup(checkout_response.text, 'lxml')
 
     # Find the table
-    table = soup.find('table', class_='wfacp_mini_cart_items')
+    table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
         printf("❌ Cart table not found")
         exit(1)
 
     # Loop over each row (skip header if present)
-    rows = table.find_all('tr')
+    rows = table.find_all('fieldset')
 
     dates = []
     item_texts = []
     for row in rows:
         # You can access all <td> cells within the row
-        cells = row.find_all('td')
-        cell_texts = [cell.get_text(strip=True) for cell in cells]
-        item_texts.append(cell_texts[0])
-        match = re.search(r'(\d{2}/\d{2}/\d{2})', cell_texts[0])
+        item = row.find('span', class_='wfacp_product_switcher_item')
+        item_texts.append(item.get_text(strip=True))
+        match = re.search(r'(\d{2}/\d{2}/\d{2})', item.get_text(strip=True))
         if match:
             dates.append(match.group(1))
         #print(cell_texts)
@@ -114,6 +115,7 @@ if len(item_texts) > 0:
         if inner_circle_name.lower() in item_text.lower():
             found = True
     if not found:
+        script_log += "inner_circle_name not in item text - retrying "
         time.sleep(1)
         (dates, item_texts) = visit_checkout_page(checkout_url)
 
@@ -134,7 +136,8 @@ output_obj = {
     "notify_email": notify_email,
     "dates": dates,
     "item_texts": item_texts,
-    "has_event_in_future": has_event_in_future
+    "has_event_in_future": has_event_in_future,
+    "script_log": script_log
 }
 
 print(json.dumps(output_obj))
