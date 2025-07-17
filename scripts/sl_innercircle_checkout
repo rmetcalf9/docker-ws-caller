@@ -1,0 +1,126 @@
+#!/usr/bin/python3
+
+import requests
+from bs4 import BeautifulSoup
+import re
+from datetime import datetime
+import json
+import os
+
+username = os.environ.get('VAR_SL_USERNAME')
+if username is None:
+    print("Environment variable VAR_SL_USERNAME is not set.")
+    exit(1)
+
+password = os.environ.get('VAR_SL_PASSWORD')
+if password is None:
+    print("Environment variable VAR_SL_PASSWORD is not set.")
+    exit(1)
+
+inner_circle_name = os.environ.get('VAR_INNER_CIRCLE_NAME')
+if inner_circle_name is None:
+    print("Environment variable VAR_INNER_CIRCLE_NAME is not set.")
+    exit(1)
+
+checkout_url = os.environ.get('VAR_CHECKOUT_URL')
+if checkout_url is None:
+    print("Environment variable VAR_CHECKOUT_URL is not set.")
+    exit(1)
+
+notify_email = os.environ.get('VAR_NOTIFY_EMAIL')
+if notify_email is None:
+    print("Environment variable VAR_NOTIFY_EMAIL is not set.")
+    exit(1)
+
+# Start a session to persist cookies
+session = requests.Session()
+
+# Get the login page first to grab the nonce (CSRF token)
+login_page = session.get('https://www.samuelleeds.com/my-account/')
+soup = BeautifulSoup(login_page.text, 'html.parser')
+
+# Find the WooCommerce nonce token
+nonce_input = soup.find('input', {'name': 'woocommerce-login-nonce'})
+if not nonce_input:
+    raise Exception("Login nonce not found")
+nonce = nonce_input['value']
+
+# Construct login data
+login_data = {
+    'username': username,
+    'password': password,
+    'woocommerce-login-nonce': nonce,
+    '_wp_http_referer': '/my-account/',
+    'login': 'Log in'
+}
+
+# Submit the login form
+response = session.post('https://www.samuelleeds.com/my-account/', data=login_data)
+
+# Check if login was successful by looking for a redirect or logged-in text
+if "From your account dashboard you can view your" not in response.text:
+    print("❌ Login failed")
+    print("Response:", response.text[:500])
+    exit(1)
+
+##print("✅ Login successful")
+##print("Cookies:", session.cookies.get_dict())
+
+
+# Step 3: Visit the checkout page
+checkout_response = session.get(checkout_url)
+
+# Step 4: Extract text from the page
+if checkout_response.status_code != 200:
+    print(f"❌ Failed to load page: {checkout_response.status_code}")
+    exit(1)
+
+page_soup = BeautifulSoup(checkout_response.text, 'lxml')
+page_text = page_soup.get_text(separator='\n', strip=True)
+
+soup = BeautifulSoup(checkout_response.text, 'lxml')
+
+# Find the table
+table = soup.find('table', class_='wfacp_mini_cart_items')
+if not table:
+    printf("❌ Cart table not found")
+    exit(1)
+
+# Loop over each row (skip header if present)
+rows = table.find_all('tr')
+
+dates = []
+item_texts = []
+for row in rows:
+    # You can access all <td> cells within the row
+    cells = row.find_all('td')
+    cell_texts = [cell.get_text(strip=True) for cell in cells]
+    item_texts.append(cell_texts[0])
+    match = re.search(r'(\d{2}/\d{2}/\d{2})', cell_texts[0])
+    if match:
+        dates.append(match.group(1))
+    #print(cell_texts)
+
+##print("Found", len(dates), " dates")
+
+
+has_event_in_future = False
+for date in dates:
+    event_date = datetime.strptime(date, '%d/%m/%y')
+    # Get current datetime
+    now = datetime.now()
+    # Check if the date is in the future
+    is_future = event_date > now
+    if is_future:
+        has_event_in_future = True
+
+output_obj = {
+    "inner_circle_name": inner_circle_name,
+    "checkout_url": checkout_url,
+    "notify_email": notify_email,
+    "dates": dates,
+    "item_texts": item_texts,
+    "has_event_in_future": has_event_in_future
+}
+
+print(json.dumps(output_obj))

@@ -48,3 +48,11 @@ docker run --mount type=bind,source=$(pwd)/examples,target=/examples metcarob/do
 ## Test out docker hello world
 
 docker run --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock metcarob/docker-ws-caller:0.6.4 -c "docker_helloworld"
+
+
+# Testing sl_innercircle_checkout
+
+```
+docker build -t metcarob/docker-ws-caller:localtext .
+docker run --rm -it  -e VAR_SL_USERNAME="$VAR_SL_USERNAME" -e VAR_SL_PASSWORD="$VAR_SL_PASSWORD" -e VAR_INNER_CIRCLE_NAME="$VAR_INNER_CIRCLE_NAME" -e VAR_CHECKOUT_URL="$VAR_CHECKOUT_URL" -e VAR_NOTIFY_EMAIL="$VAR_NOTIFY_EMAIL" metcarob/docker-ws-caller:localtext -c "sl_innercircle_checkout"
+```

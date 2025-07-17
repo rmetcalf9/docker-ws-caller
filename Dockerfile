@@ -8,6 +8,8 @@ RUN apk add --no-cache curl python3 gcc python3-dev linux-headers build-base lib
     pip3 install nose && \
     pip3 install rednose && \
     pip3 install docker && \
+    pip3 install beautifulsoup4 && \
+    pip3 install lxml && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     rm -r /root/.cache
@@ -29,7 +31,8 @@ RUN chmod +x /usr/bin/kong_install_service_and_route && \
     chmod +x /usr/bin/docker_helloworld && \
     chmod +x /usr/bin/docker_service_remove_non_live && \
     chmod +x /usr/bin/transferDirectory && \
-    chmod +x /usr/bin/rdockerinit
+    chmod +x /usr/bin/rdockerinit && \
+    chmod +x /usr/bin/sl_innercircle_checkout
 
 
 #Features to add
