@@ -83,7 +83,7 @@ if "From your account dashboard you can view your" not in response.text:
 
 # Step 3: Visit the checkout page
 def visit_checkout_page(checkout_url, num_retries_left):
-    global script_log    
+    global script_log
     checkout_response = session.get(checkout_url)
 
     if checkout_response.status_code != 200:
@@ -110,8 +110,12 @@ def visit_checkout_page(checkout_url, num_retries_left):
             time.sleep(fail_time_interval)
             return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
         script_log += f"Cart table not found in returned page"
+        # Cart table not found is the error we are looking for
+        output_obj["dates"] = []
+        output_obj["item_texts"] = []
+        output_obj["has_event_in_future"] = False
         output_obj["script_log"] = script_log
-        output_obj["check_success"] = False
+        output_obj["check_success"] = True
         print(json.dumps(output_obj))
         exit(0)
 
