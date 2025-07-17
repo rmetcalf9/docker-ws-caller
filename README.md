@@ -56,5 +56,18 @@ docker run --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.
 docker build -t metcarob/docker-ws-caller:localtext .
 
 
+export VAR_SL_USERNAME="XXXX"
+export VAR_SL_PASSWORD="XXXXX"
+
+export VAR_INNER_CIRCLE_NAME="Lewisham"
+export VAR_CHECKOUT_URL="https://www.samuelleeds.com/checkouts/the-inner-circle-lewisham/"
+
+export VAR_INNER_CIRCLE_NAME="Birmingham South"
+export VAR_CHECKOUT_URL="https://www.samuelleeds.com/checkouts/the-inner-circle-birmingham-south/"
+
+
+export VAR_NOTIFY_EMAIL="aaa@cc.com, bbb@dsd.com"
+
+
 docker run --rm -it  -e VAR_SL_USERNAME="$VAR_SL_USERNAME" -e VAR_SL_PASSWORD="$VAR_SL_PASSWORD" -e VAR_INNER_CIRCLE_NAME="$VAR_INNER_CIRCLE_NAME" -e VAR_CHECKOUT_URL="$VAR_CHECKOUT_URL" -e VAR_NOTIFY_EMAIL="$VAR_NOTIFY_EMAIL" metcarob/docker-ws-caller:localtext -c "sl_innercircle_checkout"
 ```

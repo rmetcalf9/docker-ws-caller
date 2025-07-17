@@ -79,11 +79,13 @@ if "From your account dashboard you can view your" not in response.text:
 
 
 # Step 3: Visit the checkout page
-def visit_checkout_page(checkout_url):
+def visit_checkout_page(checkout_url, num_retries_left=3):
     checkout_response = session.get(checkout_url)
 
     if checkout_response.status_code != 200:
-        output_obj["script_log"] = f"Failed to checkout page: {checkout_response.status_code}"
+        if num_retries_left>0:
+            return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
+        output_obj["script_log"] = f"Failed to load checkout page: {checkout_response.status_code}"
         output_obj["check_success"] = False
         print(json.dumps(output_obj))
         exit(0)
@@ -96,7 +98,9 @@ def visit_checkout_page(checkout_url):
     # Find the table
     table = soup.find('div', class_='wfacp_product_switcher_container')
     if not table:
-        output_obj["script_log"] = f"art table not found"
+        if num_retries_left>0:
+            return visit_checkout_page(checkout_url, num_retries_left=num_retries_left-1)
+        output_obj["script_log"] = f"Cart table not found in returned page"
         output_obj["check_success"] = False
         print(json.dumps(output_obj))
         exit(0)
