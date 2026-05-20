@@ -203,7 +203,22 @@ else:
     if len(AUTHED_ACL_BLACKLIST_l)!=0:
       raise Exception("Got values for both whitelist and blacklist")
 
-  if kv in kong_modern_versions:
+  if kv == "3.3.0":
+    if len(AUTHED_ACL_WHITELIST_l)==0:
+      data = {
+        'name': 'acl',
+        'config': {
+          'deny': AUTHED_ACL_BLACKLIST_l
+        }
+      }
+    else:
+      data = {
+        'name': 'acl',
+        'config': {
+          'allow': AUTHED_ACL_WHITELIST_l
+        }
+      }
+  elif kv == "1.1.2":
     if len(AUTHED_ACL_WHITELIST_l)==0:
       data = {
         'name': 'acl',
