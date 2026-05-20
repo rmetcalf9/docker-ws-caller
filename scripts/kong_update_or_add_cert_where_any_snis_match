@@ -64,11 +64,12 @@ newSnis = sys.argv[5]
 kv = getKongVersion(kongURL)
 
 print("Found kong version " + kv)
+kong_modern_versions = ["1.1.2", "3.3.0"]
 
 print(" updating where any cert matches any of " + certMatchList + " (kong url " + kongURL + ")")
 
 
-if kv == "1.1.2":
+if kv in kong_modern_versions:
   files = {
       'cert': (certfile, open(certfile, 'rb')),
       'key': (privkeyfile, open(privkeyfile, 'rb'))
@@ -131,7 +132,7 @@ if not foundAndUpdated:
     print(r.content)
     print("ERROR bad return")
     exit(1)
-  if kv == "1.1.2":
+  if kv in kong_modern_versions:
     jsonResp = json.loads(r.content.decode('utf-8'))
     certID =  jsonResp["id"]
     for x in newSnis.split(","):

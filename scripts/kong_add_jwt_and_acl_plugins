@@ -119,6 +119,7 @@ def getKongVersion(kongURL):
 kv = getKongVersion(kongURL)
 
 print("Found kong version " + kv)
+kong_modern_versions = ["1.1.2", "3.3.0"]
 
 def makeGetRequest(apiURL, expectedResult, errMsg):
   r = requests.get(kongURL + apiURL)
@@ -130,13 +131,13 @@ def makeGetRequest(apiURL, expectedResult, errMsg):
   print(r.content)
   print(errMsg)
   exit(1)
-  
+
 def makePostJSONRequest(apiURL, data, expectedResult, errMsg):
-  headers = {"Content-type": "application/json"} 
+  headers = {"Content-type": "application/json"}
   #dataToSend = urlencode(data).encode()
   dataToSend = json.dumps(data)
   targetURL=kongURL + apiURL
-  
+
   ##print("dataToSend:",dataToSend)
   r = requests.post(targetURL, data=dataToSend, headers=headers)
   if (r.status_code in expectedResult):
@@ -147,7 +148,7 @@ def makePostJSONRequest(apiURL, data, expectedResult, errMsg):
   print(r.content)
   print(errMsg)
   exit(1)
-  
+
 print("Getting a list of plugins")
 r = makeGetRequest("/services/" + SERVICE_NAME + "/plugins/", [200], "ERROR Failed to get list of plugins for service - does the service exist?")
 
@@ -167,9 +168,9 @@ if hasJWT:
   print("Already has JWT Plugin applied")
 else:
   print("Adding JWT plugin")
-  if kv == "1.1.2":
+  if kv in kong_modern_versions:
     data={
-      'name': 'jwt', 
+      'name': 'jwt',
       'config': {
         'secret_is_base64': True,
         'claims_to_verify': ['exp'],
@@ -179,7 +180,7 @@ else:
     }
   else:
     data={
-      'name': 'jwt', 
+      'name': 'jwt',
       'config': {
         'secret_is_base64': True,
         'claims_to_verify': 'exp',
@@ -199,18 +200,18 @@ else:
   if len(AUTHED_ACL_WHITELIST_l)!=0:
     if len(AUTHED_ACL_BLACKLIST_l)!=0:
       raise Exception("Got values for both whitelist and blacklist")
-      
-  if kv == "1.1.2":
+
+  if kv in kong_modern_versions:
     if len(AUTHED_ACL_WHITELIST_l)==0:
       data = {
-        'name': 'acl', 
+        'name': 'acl',
         'config': {
           'blacklist': AUTHED_ACL_BLACKLIST_l
         }
       }
     else:
       data = {
-        'name': 'acl', 
+        'name': 'acl',
         'config': {
           'whitelist': AUTHED_ACL_WHITELIST_l
         }
@@ -218,26 +219,26 @@ else:
   else:
     if len(AUTHED_ACL_WHITELIST_l)==0:
       data = {
-        'name': 'acl', 
+        'name': 'acl',
         'config': {
           'blacklist': AUTHED_ACL_BLACKLIST_l
         }
       }
     else:
       data = {
-        'name': 'acl', 
+        'name': 'acl',
         'config': {
           'whitelist': AUTHED_ACL_WHITELIST_l
         }
       }
 
   r = makePostJSONRequest("/services/" + SERVICE_NAME + "/plugins/", data, [201], "ERROR failed to add ACL Plugin")
-  
+
 
 #TODO something like:
-#curl -i -X POST --url "http://kong:8001/services/serv_name/plugins/" --data "name=jwt&config.secret_is_base64=true&config.claims_to_verify=exp&config.cookie_names=jwt-auth-cookie" 
+#curl -i -X POST --url "http://kong:8001/services/serv_name/plugins/" --data "name=jwt&config.secret_is_base64=true&config.claims_to_verify=exp&config.cookie_names=jwt-auth-cookie"
 
-#(curl -i -X POST --url "http://kong:8001/services/\${SERVICENAME}/plugins/" 
+#(curl -i -X POST --url "http://kong:8001/services/\${SERVICENAME}/plugins/"
 #--data "name=acl&config.whitelist=\${WHITELIST}" )
 
 print("End of " + sys.argv[0])
