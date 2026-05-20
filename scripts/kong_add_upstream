@@ -12,6 +12,23 @@ import sys
 import requests
 import json
 
+def makePostJSONRequest(apiURL, data, expectedResult, errMsg):
+  headers = {"Content-type": "application/json"}
+  #dataToSend = urlencode(data).encode()
+  dataToSend = json.dumps(data)
+  targetURL=kongURL + apiURL
+
+  ##print("dataToSend:",dataToSend)
+  r = requests.post(targetURL, data=dataToSend, headers=headers)
+  if (r.status_code in expectedResult):
+    return r
+  print("Error in post request")
+  print(r.status_code)
+  print(r.headers)
+  print(r.content)
+  print(errMsg)
+  exit(1)
+
 print("Start of " + sys.argv[0])
 
 expectedNumOfArgs=4
@@ -61,7 +78,7 @@ if not upstream_already_exists:
   post_data = {
     'name': serviceName,
   }
-  r = requests.post(kongURL + "/upstreams/", files=post_data)
+  r = makePostJSONRequest("/upstreams/", post_data , [201], "ERROR failed to add upstream")
   if (r.status_code != 201):
     print(r.status_code)
     print(r.headers)
@@ -90,7 +107,7 @@ print("Target ID:" + targetAddedID)
 
 if removeOtherTargets:
   print('Now removing all other targets')
-  
+
   r = requests.get(kongURL + "/upstreams/" + serviceName + "/targets")
   if (r.status_code != 200):
     print(r.status_code)
@@ -98,7 +115,7 @@ if removeOtherTargets:
     print(r.content)
     print("ERROR could not list targets for service")
     exit(1)
-    
+
   jsonRespListOfTargets = json.loads(r.content.decode('utf-8'))
 
   num_removed = 0
@@ -117,7 +134,7 @@ if removeOtherTargets:
         exit(1)
       print("Removed target " + curTarget['target'] + " id " + curTarget['id'])
       num_removed += 1
-      
+
   print("Number of targets removed: " + str(num_removed))
 
 print("End of " + sys.argv[0])
