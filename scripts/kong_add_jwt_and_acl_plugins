@@ -84,13 +84,15 @@ AUTHED_ACL_BLACKLIST_ll = " ".join(AUTHED_ACL_BLACKLIST.split()).split(" ")
 
 AUTHED_ACL_WHITELIST_l = []
 for x in AUTHED_ACL_WHITELIST_ll:
-  if x != '':
-    AUTHED_ACL_WHITELIST_l.append(x)
+  tmp = x.replace("'", "").replace('"', '')
+  if tmp != '':
+    AUTHED_ACL_WHITELIST_l.append(tmp)
 
 AUTHED_ACL_BLACKLIST_l = []
 for x in AUTHED_ACL_BLACKLIST_ll:
-  if x != '':
-    AUTHED_ACL_BLACKLIST_l.append(x)
+  tmp = x.replace("'", "").replace('"', '')
+  if tmp != '':
+    AUTHED_ACL_BLACKLIST_l.append(tmp)
 
 
 print(" AUTHED_ACL_WHITELIST_l:",AUTHED_ACL_WHITELIST_l)
